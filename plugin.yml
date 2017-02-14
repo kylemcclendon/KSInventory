@@ -1,0 +1,8 @@
+name: KSInventory
+main: ksinventory.KSInventory
+version: 1.0
+
+commands:
+   serialize:
+      description: Serializes item in main hand
+      usage: /serialize
