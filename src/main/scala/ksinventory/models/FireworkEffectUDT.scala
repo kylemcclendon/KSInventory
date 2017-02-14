@@ -12,5 +12,7 @@ case class FireworkEffectUDT(
                             @Field(name="trail")
                             trail: Boolean,
                             @Field(name="colors")
-                            colors: util.List[String]
+                            colors: util.List[ColorUDT],
+                            @Field(name="fade_colors")
+                            fadeColors: util.List[ColorUDT]
                             )

@@ -1,5 +1,6 @@
 package ksinventory.utils
 
+import java.util
 import java.util.UUID
 
 import collection.JavaConverters._
@@ -16,7 +17,6 @@ class ItemStackConverter {
           Tuple5(index,0,0,null,null)
         }
         else{
-          println("isn't null")
           Tuple5(index,item.getAmount, item.getDurability.toInt, item.getType.toString, getItemMeta(item))
         }
     }
@@ -24,39 +24,30 @@ class ItemStackConverter {
 
   private def getItemMeta(item: ItemStack): MetaUDT = {
     if (item.hasItemMeta) {
-      println("has meta")
-      var bannerMeta: BannerMetaUDT = null
+      var bannerMeta: util.List[PatternUDT] = null
       var bookMeta: BookMetaUDT = null
       var eggMeta: String = null
       var internal: String = null
-      var leather: String = null
+      var leather: ColorUDT = null
       var mapMeta: MapMetaUDT = null
       var potionMeta: Int = -1
       var skullMeta: String = null
       var fireworkMeta: FireworkMetaUDT = null
 
-      println("display name")
       var displayName = item.getItemMeta.getDisplayName
       var enchantments: scala.collection.mutable.Map[String, Int] = null
 
-      println("lore")
       var lore = item.getItemMeta.getLore
 
-      println("matcher")
       item.getType match {
         case Material.BANNER => {
           val banner = item.getItemMeta.asInstanceOf[BannerMeta]
-          println(banner)
-          println(banner.getBaseColor)
-          val baseColor = banner.getBaseColor.toString
-          println(baseColor)
+
           val patterns = banner.getPatterns.asScala.map((pattern)=>{
             PatternUDT(pattern.getColor.toString, pattern.getPattern.toString)
           }).asJava
 
-          println(patterns)
-
-          bannerMeta = BannerMetaUDT(baseColor, patterns)
+          bannerMeta = patterns
         }
         case Material.BOOK_AND_QUILL => {
           //Only set pages
@@ -83,21 +74,27 @@ class ItemStackConverter {
           //TODO get potion dv
         }
         case Material.LEATHER_BOOTS | Material.LEATHER_CHESTPLATE | Material.LEATHER_HELMET | Material.LEATHER_LEGGINGS => {
-          leather = item.getItemMeta.asInstanceOf[LeatherArmorMeta].getColor.toString
+          val leatherColor = item.getItemMeta.asInstanceOf[LeatherArmorMeta].getColor
+          leather = ColorUDT(leatherColor.getRed, leatherColor.getGreen, leatherColor.getBlue)
         }
         case Material.MAP => {
           val map = item.getItemMeta.asInstanceOf[MapMeta]
+          val mapColor = map.getColor
 
-          mapMeta = MapMetaUDT(map.getColor.toString, map.getLocationName, map.isScaling)
+          mapMeta = MapMetaUDT(ColorUDT(mapColor.getRed, mapColor.getGreen, mapColor.getBlue), map.getLocationName, map.isScaling)
         }
         case Material.FIREWORK => {
           val firework = item.getItemMeta.asInstanceOf[FireworkMeta]
 
           val effects = firework.getEffects.asScala.map((effect)=>{
             val colors = effect.getColors.asScala.map((color)=>{
-              color.toString
+              ColorUDT(color.getRed, color.getGreen, color.getBlue)
             })
-            FireworkEffectUDT(effect.getType.toString,effect.hasFlicker,effect.hasTrail, colors.asJava)
+            val fadeColors = effect.getFadeColors.asScala.map((color)=>{
+              ColorUDT(color.getRed, color.getGreen, color.getBlue)
+            })
+
+            FireworkEffectUDT(effect.getType.toString,effect.hasFlicker,effect.hasTrail, colors.asJava, fadeColors.asJava)
           }).asJava
 
           fireworkMeta = FireworkMetaUDT(firework.getPower, effects)
@@ -126,13 +123,9 @@ class ItemStackConverter {
         }
       }
 
-      println("pre enchantments")
       if(item.getEnchantments.size > 0){
-        println("has enchantments")
         enchantments = scala.collection.mutable.Map()
         item.getEnchantments.forEach((enchantment, power)=>{
-          println(enchantment.getName)
-          println(power)
          enchantments += (enchantment.getName -> power)
         })
       }

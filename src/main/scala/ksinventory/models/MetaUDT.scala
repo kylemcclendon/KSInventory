@@ -7,7 +7,7 @@ import com.datastax.driver.mapping.annotations.{Field, UDT}
 @UDT(keyspace="minecraft", name="metaudt")
 case class MetaUDT(
                     @Field(name="banner")
-                  banner: BannerMetaUDT,
+                  banner: util.List[PatternUDT],
                     @Field(name="book")
                   book: BookMetaUDT,
                     @Field(name="display_name")
@@ -21,7 +21,7 @@ case class MetaUDT(
                     @Field(name="internals")
                   internals: String,
                     @Field(name="leather")
-                  leather: String,
+                  leather: ColorUDT,
                     @Field(name="lore")
                   lore: util.List[String],
                     @Field(name="map")
