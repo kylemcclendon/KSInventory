@@ -15,7 +15,6 @@ class PlayerDataDao(cassandraDbConnector: CassandraDbConnector) {
       .and(QueryBuilder.eq("world_id",worldId))
 
     val result = cassandraDbConnector.getSession.execute(query).one()
-    println(result)
 
     if(result == null){
       Tuple5(20,0,0,20,20)

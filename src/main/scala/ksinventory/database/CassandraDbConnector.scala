@@ -1,6 +1,7 @@
 package ksinventory.database
 
 import com.datastax.driver.core.{Cluster, Session}
+import com.datastax.driver.mapping.MappingManager
 
 trait CassandraDbConnector {
 
@@ -12,17 +13,24 @@ trait CassandraDbConnector {
   def getHost: String = "216.224.167.187"
   def getUserName: String = "cassandra"
   def getPassword: String = "cassandra"
+  def getMapper: MappingManager
 }
 class CassandraDbConnectorImpl extends CassandraDbConnector {
 //  private val logger = Logger(this.getClass)
   private[this] val lock = new Object()
   private var session: Session =_
+  private var mappingManager: MappingManager = _
 
   def getSession: Session = {
     if(session == null) {
       createSessionAndInitKeySpace(getHost, getPort, getKeySpace, getUserName, getPassword)
     }
     session
+  }
+
+  def closeSession ={
+    session.close()
+    session = null
   }
 
   def createSessionAndInitKeySpace(address: String, port: Int, keySpace: String, userName: String, password: String): Session = lock.synchronized {
@@ -33,6 +41,7 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
 //      val cluster = Cluster.builder().addContactPoints(hosts:_*).withPort(port).withCredentials(userName, password).build()
       val cluster = Cluster.builder().addContactPoint("216.224.167.187").withPort(9042).withCredentials("cassandra", "cassandra").build()
       session = cluster.connect("minecraft")
+      mappingManager = new MappingManager(session);
     } catch {
       case ex : Exception => println("Unable to create casandra session: "+ex.getMessage)
     }
@@ -43,6 +52,18 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
     val cluster = Cluster.builder().addContactPoint(address).withPort(port).build()
     val session = cluster.connect()
     session
+  }
+
+  def getMapper(): MappingManager = {
+    if(mappingManager == null){
+      if(session == null){
+        createSessionAndInitKeySpace(getHost, getPort, getKeySpace, getUserName, getPassword)
+      }
+      else{
+        mappingManager = new MappingManager(session);
+      }
+    }
+    mappingManager
   }
 
 }

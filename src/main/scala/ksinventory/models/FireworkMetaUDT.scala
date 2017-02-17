@@ -1,12 +1,18 @@
 package ksinventory.models
 
 import java.util
-import com.datastax.driver.mapping.annotations.{Field, UDT}
+
+import com.datastax.driver.mapping.annotations.{Field, Frozen, UDT}
 
 @UDT(keyspace="minecraft", name="firework_meta")
-case class FireworkMetaUDT(
-                            @Field(name="power")
-                            power: Int,
-                            @Field(name="effects")
-                            effects: util.List[FireworkEffectUDT]
-                          )
+class FireworkMetaUDT(){
+  private var power: Int = -1
+  @Frozen
+  private var effects: util.List[FireworkEffectUDT] = null
+
+  def this(p: Int, e: util.List[FireworkEffectUDT]){
+    this()
+    this.power = p
+    this.effects = e
+  }
+}

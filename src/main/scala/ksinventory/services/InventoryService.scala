@@ -26,18 +26,14 @@ class InventoryService(inventoryDao: InventoryDao, playerDataDao: PlayerDataDao,
   def savePlayerInventory(playerId: UUID, worldId: UUID, inventory: List[ItemStack]): Unit ={
     PlayerWorldInventoryCache.setPlayerInventory(playerId, worldId, inventory)
 
-    println("INVENTORY:")
     //Attempt Save To DB
-    try{
+//    try{
       val dbInventory = new ItemStackConverter().convertItemStacksToInventory(playerId,worldId,inventory)
-      println(dbInventory.length)
-      dbInventory.foreach((inv)=>{
-        println(inv)
-      })
-    }
-    catch{
-      case ex: Exception => println("UNABLE TO SAVE PLAYER INVENTORY TO DATABASE!!! REASON: " + ex.getMessage)
-    }
+      inventoryDao.savePlayerInventory(playerId, worldId, dbInventory)
+//    }
+//    catch{
+//      case ex: Exception => println("UNABLE TO SAVE PLAYER INVENTORY TO DATABASE!!! REASON: " + ex.getMessage + ". Cause: " + ex.getCause)
+//    }
   }
 
   // Ender Chest Inventory

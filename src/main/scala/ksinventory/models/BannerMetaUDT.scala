@@ -4,7 +4,13 @@ import java.util
 import com.datastax.driver.mapping.annotations.{Field, UDT}
 
 @UDT(keyspace = "minecraft", name="banner_meta")
-case class BannerMetaUDT(
-                          @Field(name="base_color") baseColor: String,
-                          @Field(name="patterns") patterns: util.List[PatternUDT]
-                        )
+class BannerMetaUDT(){
+  private var base_color: String = null
+  private var patterns: util.List[PatternUDT] = null
+
+  def this(bc: String, pats: util.List[PatternUDT]){
+    this()
+    this.base_color = bc
+    this.patterns = pats
+  }
+}

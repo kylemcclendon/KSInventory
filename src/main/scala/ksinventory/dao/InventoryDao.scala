@@ -5,8 +5,9 @@ import java.util.UUID
 import com.datastax.driver.core.querybuilder.{Insert, QueryBuilder, Update}
 import com.datastax.driver.core.utils.Bytes
 import com.datastax.driver.core._
+import com.datastax.driver.mapping.Mapper
 import ksinventory.database.CassandraDbConnector
-import ksinventory.models.MetaUDT
+import ksinventory.models.{MetaUDT, PlayerInventory}
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -36,17 +37,12 @@ class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
 
   //Saver
 
-  def savePlayerInventory(playerId: UUID, worldId: UUID, inventoryList: List[Tuple5[Int, Int, Int, String, MetaUDT]]): Unit ={
+  def savePlayerInventory(playerId: UUID, worldId: UUID, inventoryList: List[PlayerInventory]): Unit ={
     var batch = new BatchStatement()
-    inventoryList.map((inventory)=>{
-      batch.add(QueryBuilder.insertInto("player_inventory")
-        .value("player_id", playerId)
-        .value("world_id", worldId)
-        .value("position", inventory._1)
-        .value("amount", inventory._2)
-        .value("damage", inventory._3)
-        .value("material", inventory._4)
-        .value("meta", inventory._5))
+    val mapper = CassandraDbConnector.getMapper().mapper(classOf[PlayerInventory])
+
+    inventoryList.map((inventory)=> {
+      batch.add(mapper.saveQuery(inventory))
     })
 
     cassandraDbConnector.getSession.execute(batch)

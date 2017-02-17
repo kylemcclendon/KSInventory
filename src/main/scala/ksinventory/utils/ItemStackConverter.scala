@@ -8,16 +8,19 @@ import ksinventory.models._
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta._
+import org.bukkit.potion.{PotionEffect, PotionType}
 
 class ItemStackConverter {
-  def convertItemStacksToInventory(playerId: UUID, worldId: UUID, inventory: List[ItemStack]): List[Tuple5[Int, Int, Int, String, MetaUDT]] ={
+  def convertItemStacksToInventory(playerId: UUID, worldId: UUID, inventory: List[ItemStack]): List[PlayerInventory] ={
     inventory.zipWithIndex.map {
       case(item,index)=>
         if(item == null){
-          Tuple5(index,0,0,null,null)
+          new PlayerInventory(playerId,worldId,index,0,0,null,null)
+//          Tuple5(index,0,0,null,null)
         }
         else{
-          Tuple5(index,item.getAmount, item.getDurability.toInt, item.getType.toString, getItemMeta(item))
+          new PlayerInventory(playerId,worldId,index,item.getAmount,item.getDurability.toInt, item.getType.toString, getItemMeta(item))
+//          Tuple5(index,item.getAmount, item.getDurability.toInt, item.getType.toString, getItemMeta(item))
         }
     }
   }
@@ -30,12 +33,12 @@ class ItemStackConverter {
       var internal: String = null
       var leather: ColorUDT = null
       var mapMeta: MapMetaUDT = null
-      var potionMeta: Int = -1
+      var potionMeta: PotionMetaUDT = null
       var skullMeta: String = null
       var fireworkMeta: FireworkMetaUDT = null
 
       var displayName = item.getItemMeta.getDisplayName
-      var enchantments: scala.collection.mutable.Map[String, Int] = null
+      var enchantments: scala.collection.mutable.Map[String, Integer] = null
 
       var lore = item.getItemMeta.getLore
 
@@ -53,13 +56,13 @@ class ItemStackConverter {
           //Only set pages
           val book = item.getItemMeta.asInstanceOf[BookMeta]
 
-          bookMeta = BookMetaUDT(null, null, book.getPages)
+          bookMeta = new BookMetaUDT(null, null, book.getPages)
         }
         case Material.WRITTEN_BOOK => {
           //Set all book meta
           val book = item.getItemMeta.asInstanceOf[BookMeta]
 
-          bookMeta = BookMetaUDT(book.getAuthor, book.getTitle, book.getPages)
+          bookMeta = new BookMetaUDT(book.getAuthor, book.getTitle, book.getPages)
         }
         case Material.MONSTER_EGG => {
           eggMeta = item.getItemMeta.asInstanceOf[SpawnEggMeta].getSpawnedType.toString
@@ -71,33 +74,35 @@ class ItemStackConverter {
           }
         }
         case Material.POTION | Material.LINGERING_POTION | Material.SPLASH_POTION | Material.TIPPED_ARROW => {
-          //TODO get potion dv
+          val potion = item.getItemMeta.asInstanceOf[PotionMeta]
+
+          potionMeta = new PotionMetaUDT(potion.getBasePotionData.getType.toString, potion.getBasePotionData.isUpgraded, potion.getBasePotionData.isExtended)
         }
         case Material.LEATHER_BOOTS | Material.LEATHER_CHESTPLATE | Material.LEATHER_HELMET | Material.LEATHER_LEGGINGS => {
           val leatherColor = item.getItemMeta.asInstanceOf[LeatherArmorMeta].getColor
-          leather = ColorUDT(leatherColor.getRed, leatherColor.getGreen, leatherColor.getBlue)
+          leather = new ColorUDT(leatherColor.getRed, leatherColor.getGreen, leatherColor.getBlue)
         }
         case Material.MAP => {
           val map = item.getItemMeta.asInstanceOf[MapMeta]
           val mapColor = map.getColor
 
-          mapMeta = MapMetaUDT(ColorUDT(mapColor.getRed, mapColor.getGreen, mapColor.getBlue), map.getLocationName, map.isScaling)
+          mapMeta = new MapMetaUDT(new ColorUDT(mapColor.getRed, mapColor.getGreen, mapColor.getBlue), map.getLocationName, map.isScaling)
         }
         case Material.FIREWORK => {
           val firework = item.getItemMeta.asInstanceOf[FireworkMeta]
 
           val effects = firework.getEffects.asScala.map((effect)=>{
             val colors = effect.getColors.asScala.map((color)=>{
-              ColorUDT(color.getRed, color.getGreen, color.getBlue)
+              new ColorUDT(color.getRed, color.getGreen, color.getBlue)
             })
             val fadeColors = effect.getFadeColors.asScala.map((color)=>{
-              ColorUDT(color.getRed, color.getGreen, color.getBlue)
+              new ColorUDT(color.getRed, color.getGreen, color.getBlue)
             })
 
-            FireworkEffectUDT(effect.getType.toString,effect.hasFlicker,effect.hasTrail, colors.asJava, fadeColors.asJava)
+            new FireworkEffectUDT(effect.getType.toString,effect.hasFlicker,effect.hasTrail, colors.asJava, fadeColors.asJava)
           }).asJava
 
-          fireworkMeta = FireworkMetaUDT(firework.getPower, effects)
+          fireworkMeta = new FireworkMetaUDT(firework.getPower, effects)
         }
 
         case Material.BLACK_SHULKER_BOX |
@@ -129,11 +134,14 @@ class ItemStackConverter {
          enchantments += (enchantment.getName -> power)
         })
       }
-
-      MetaUDT(bannerMeta,bookMeta,displayName,eggMeta,enchantments.asJava,fireworkMeta,internal,leather,lore,mapMeta,potionMeta,skullMeta)
+      new MetaUDT(bannerMeta,bookMeta,displayName,eggMeta,enchantments.asJava,fireworkMeta,internal,leather,lore,mapMeta,potionMeta,skullMeta)
     }
     else {
       null
     }
+  }
+
+  private def getPotionEffect(potionDV: Int): PotionEffect = {
+    null
   }
 }

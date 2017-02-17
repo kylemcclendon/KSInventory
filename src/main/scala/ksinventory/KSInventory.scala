@@ -1,6 +1,7 @@
 package ksinventory
 
 import ksinventory.commands.Commands
+import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -19,6 +20,7 @@ class KSInventory extends JavaPlugin{
 
   override def onDisable(): Unit = {
     getLogger.info("Disabling KSInventory")
+    CassandraDbConnector
     getLogger.info("KSInventory Disabled")
   }
 }
