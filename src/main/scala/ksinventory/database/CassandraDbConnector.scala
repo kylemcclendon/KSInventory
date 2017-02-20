@@ -30,6 +30,7 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
 
   def closeSession ={
     session.close()
+    mappingManager = null
     session = null
   }
 

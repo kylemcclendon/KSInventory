@@ -6,46 +6,55 @@ import scala.collection.mutable
 import org.bukkit.inventory.ItemStack
 
 object PlayerWorldInventoryCache {
-  var playerWorldInventoryMap: mutable.Map[(UUID, UUID),List[ItemStack]] = mutable.Map()
-  var playerWorldEndInventoryMap: mutable.Map[(UUID, UUID),List[ItemStack]] = mutable.Map()
-  var playerWorldDataMap: mutable.Map[(UUID, UUID), (Float, Float, Float, Float, Float)] = mutable.Map()
+  var playerWorldInventoryMap: mutable.Map[(UUID, String),List[ItemStack]] = mutable.Map()
+  var playerWorldEndInventoryMap: mutable.Map[(UUID, String),List[ItemStack]] = mutable.Map()
+  var playerWorldDataMap: mutable.Map[(UUID, String), (Float, Float, Float, Float, Float)] = mutable.Map()
+  var playerEndRequest: mutable.Map[(UUID, String),Boolean] = mutable.Map()
 
   //Containers
-  def playerInventoryContains(playerId: UUID, worldId: UUID): Boolean ={
-    playerWorldInventoryMap.contains((playerId,worldId))
+  def playerInventoryContains(playerId: UUID, worldName: String): Boolean ={
+    playerWorldInventoryMap.contains((playerId,worldName))
   }
 
-  def playerEndInventoryContains(playerId: UUID, worldId: UUID): Boolean ={
-    playerWorldEndInventoryMap.contains((playerId,worldId))
+  def playerEndInventoryContains(playerId: UUID, worldName: String): Boolean ={
+    playerWorldEndInventoryMap.contains((playerId,worldName))
   }
 
-  def playerDataContains(playerId: UUID, worldId: UUID): Boolean ={
-    playerWorldDataMap.contains((playerId,worldId))
+  def playerDataContains(playerId: UUID, worldName: String): Boolean ={
+    playerWorldDataMap.contains((playerId,worldName))
   }
 
   //Getters
-  def getPlayerInventory(playerId: UUID, worldId: UUID): List[ItemStack] = {
-    playerWorldInventoryMap.getOrElse((playerId,worldId),Nil)
+  def getPlayerInventory(playerId: UUID, worldName: String): List[ItemStack] = {
+    playerWorldInventoryMap.getOrElse((playerId,worldName),Nil)
   }
 
-  def getPlayerData(playerId: UUID, worldId: UUID): Tuple5[Float, Float, Float, Float, Float]={
-    playerWorldDataMap.getOrElse((playerId,worldId),(20,0,0,20,20))
+  def getPlayerData(playerId: UUID, worldName: String): Tuple5[Float, Float, Float, Float, Float]={
+    playerWorldDataMap.getOrElse((playerId,worldName),(20,0,0,20,20))
   }
 
-  def getPlayerEndInventory(playerId: UUID, worldId: UUID): List[ItemStack] = {
-    playerWorldEndInventoryMap.getOrElse((playerId,worldId), Nil)
+  def getPlayerEndInventory(playerId: UUID, worldName: String): List[ItemStack] = {
+    playerWorldEndInventoryMap.getOrElse((playerId,worldName), Nil)
+  }
+
+  def getPlayerEndRequest(playerId: UUID, worldName:String): Boolean = {
+    playerEndRequest.getOrElse((playerId,worldName),false)
   }
 
   //Setters
-  def setPlayerData(playerId: UUID, worldId: UUID, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
-    playerWorldDataMap((playerId,worldId)) = (health, experience,level,food,saturation)
+  def setPlayerData(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
+    playerWorldDataMap((playerId,worldName)) = (health, experience,level,food,saturation)
   }
 
-  def setPlayerInventory(playerId: UUID, worldId: UUID, inventory: List[ItemStack]): Unit ={
-    playerWorldInventoryMap((playerId,worldId)) = inventory
+  def setPlayerInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit ={
+    playerWorldInventoryMap((playerId,worldName)) = inventory
   }
 
-  def setPlayerEndInventory(playerId: UUID, worldId: UUID, inventory: List[ItemStack]): Unit = {
-    playerWorldEndInventoryMap((playerId, worldId)) = inventory
+  def setPlayerEndInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit = {
+    playerWorldEndInventoryMap((playerId, worldName)) = inventory
+  }
+
+  def setEndRequest(playerId: UUID, worldName: String, request: Boolean): Unit = {
+    playerEndRequest((playerId,worldName)) = request
   }
 }

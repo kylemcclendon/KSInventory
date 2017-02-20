@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.datastax.driver.mapping.annotations.{Frozen, Table}
 
-@Table(keyspace = "minecraft", name = "player_inventory")
-class PlayerInventory(){
+@Table(keyspace = "minecraft", name = "end_inventory")
+class EndInventory {
   var player_id: UUID = _
   var world_name: String = _
   var position: Int = -1

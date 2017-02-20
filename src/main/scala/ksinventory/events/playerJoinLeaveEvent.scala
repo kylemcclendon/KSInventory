@@ -1,25 +1,32 @@
 package ksinventory.events
 
-import ksinventory.services.InventoryService
-import org.bukkit.event.player.{PlayerJoinEvent, PlayerQuitEvent}
+import ksinventory.services.{DataService, EndChestInventoryService, InventoryService}
+import ksinventory.utils.Utils.getShortenedWorldName
+import org.bukkit.event.player.{PlayerJoinEvent, PlayerKickEvent, PlayerQuitEvent}
 import org.bukkit.event.{EventHandler, Listener}
 
 class playerJoinLeaveEvent extends Listener{
 
   @EventHandler
   def onPlayerJoin(playerJoinEvent: PlayerJoinEvent): Unit ={
-    //retrieve inventory
-    InventoryService.setPlayerWorldInventory(playerJoinEvent.getPlayer.getUniqueId, playerJoinEvent.getPlayer.getWorld.getUID)
-    InventoryService.setPlayerWorldEndInventory(playerJoinEvent.getPlayer.getUniqueId, playerJoinEvent.getPlayer.getWorld.getUID)
-    InventoryService.setPlayerWorldData(playerJoinEvent.getPlayer.getUniqueId, playerJoinEvent.getPlayer.getWorld.getUID)
+    InventoryService.setPlayerWorldInventory(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
+    EndChestInventoryService.setPlayerWorldEndInventory(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
+    DataService.setPlayerWorldData(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
   }
 
   @EventHandler
   def onPlayerLeave(playerQuitEvent: PlayerQuitEvent): Unit ={
-    //save inventory
     val player = playerQuitEvent.getPlayer
 
-    InventoryService.savePlayerInventory(player.getUniqueId, player.getWorld.getUID, player.getInventory.getContents.toList)
-    InventoryService.savePlayerData(player.getUniqueId, player.getWorld.getUID, player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+    InventoryService.savePlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getInventory.getContents.toList)
+    DataService.savePlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+  }
+
+  @EventHandler
+  def onPlayerKick(playerKickEvent: PlayerKickEvent): Unit ={
+    val player = playerKickEvent.getPlayer
+
+    InventoryService.savePlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getInventory.getContents.toList)
+    DataService.savePlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
   }
 }

@@ -7,25 +7,25 @@ import com.datastax.driver.mapping.annotations.{Field, Frozen, UDT}
 @UDT(keyspace="minecraft", name="metaudt")
 class MetaUDT(){
   @Frozen
-  private var banner: util.List[PatternUDT] = null
+  var banner: util.List[PatternUDT] = null
   @Frozen
-  private var book: BookMetaUDT = null
-  private var display_name: String = null
-  private var egg: String = null
+  var book: BookMetaUDT = null
+  var display_name: String = null
+  var egg: String = null
   @Frozen
-  private var enchantments: util.Map[String, Integer] = null
+  var enchantments: util.Map[String, Integer] = null
   @Frozen
-  private var firework: FireworkMetaUDT = null
-  private var internals: String = null
+  var firework: FireworkMetaUDT = null
+  var internals: String = null
   @Frozen
-  private var leather: ColorUDT = null
+  var leather: ColorUDT = null
   @Frozen
-  private var lore: util.List[String] = null
+  var lore: util.List[String] = null
   @Frozen
-  private var map: MapMetaUDT = null
+  var map: MapMetaUDT = null
   @Frozen
-  private var potion: PotionMetaUDT = null
-  private var skull: String = null
+  var potion: PotionMetaUDT = null
+  var skull: String = null
 
   def this(b: util.List[PatternUDT], bk: BookMetaUDT, dn: String, e: String, es: util.Map[String, Integer], f: FireworkMetaUDT, i: String, le: ColorUDT, lo: util.List[String], m: MapMetaUDT, p: PotionMetaUDT, s: String){
     this()

@@ -3,6 +3,8 @@ package ksinventory
 import ksinventory.commands.Commands
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
+import ksinventory.utils.Utils
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 class KSInventory extends JavaPlugin{
@@ -20,7 +22,13 @@ class KSInventory extends JavaPlugin{
 
   override def onDisable(): Unit = {
     getLogger.info("Disabling KSInventory")
-    CassandraDbConnector
-    getLogger.info("KSInventory Disabled")
+    while(Utils.activeRequests > 0) {
+      getLogger.info(Utils.activeRequests + " active database requests still open, waiting 5 seconds for them to resolve...")
+      Thread.sleep(5000)
+    }
+
+    getLogger.info("All database requests resolved. Shutting down database connection...")
+    CassandraDbConnector.closeSession
+    getLogger.info("Database connection shut down. KSInventory Disabled")
   }
 }

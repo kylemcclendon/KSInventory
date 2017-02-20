@@ -2,31 +2,26 @@ package ksinventory.dao
 
 import java.util.UUID
 
-import com.datastax.driver.core.querybuilder.{Insert, QueryBuilder, Update}
-import com.datastax.driver.core.utils.Bytes
+import collection.JavaConverters._
+import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core._
-import com.datastax.driver.mapping.Mapper
+import com.datastax.driver.mapping.{Mapper, Result}
 import ksinventory.database.CassandraDbConnector
-import ksinventory.models.{MetaUDT, PlayerInventory}
-import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
+import ksinventory.models.PlayerInventory
 
 class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
   //Getter
 
-  def getPlayerInventory(playerId: UUID, worldId: UUID): List[String] ={
+  def getPlayerInventory(playerId: UUID, worldName: String): List[PlayerInventory] ={
     try {
+      val mapper: Mapper[PlayerInventory] = cassandraDbConnector.getMapper.mapper(classOf[PlayerInventory]);
+
       val query = QueryBuilder.select().from(cassandraDbConnector.getKeySpace, "player_inventory")
-        .where(QueryBuilder.eq("player_id", playerId)).and(QueryBuilder.eq("world_id", worldId))
+        .where(QueryBuilder.eq("player_id", playerId)).and(QueryBuilder.eq("world_name", worldName))
 
-      val result = cassandraDbConnector.getSession.execute(query).all()
-
-      if (result == null) {
-        Nil
-      }
-      else {
-        List()
-      }
+      val results: ResultSet = cassandraDbConnector.getSession.execute(query)
+      val inventories: Result[PlayerInventory] = mapper.map(results)
+      inventories.all().asScala.toList
     }
     catch{
       case ex: Exception =>
@@ -37,7 +32,7 @@ class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
 
   //Saver
 
-  def savePlayerInventory(playerId: UUID, worldId: UUID, inventoryList: List[PlayerInventory]): Unit ={
+  def savePlayerInventory(playerId: UUID, worldName: String, inventoryList: List[PlayerInventory]): Unit ={
     var batch = new BatchStatement()
     val mapper = CassandraDbConnector.getMapper().mapper(classOf[PlayerInventory])
 

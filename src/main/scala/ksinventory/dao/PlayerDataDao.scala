@@ -8,11 +8,11 @@ import ksinventory.database.CassandraDbConnector
 class PlayerDataDao(cassandraDbConnector: CassandraDbConnector) {
   //Getter
 
-  def getPlayerData(playerId: UUID, worldId: UUID): Tuple5[Float, Float, Float, Float, Float]={
+  def getPlayerData(playerId: UUID, worldName: String): Tuple5[Float, Float, Float, Float, Float]={
     val query = QueryBuilder.select()
       .from(cassandraDbConnector.getKeySpace, "player_data")
       .where(QueryBuilder.eq("player_id", playerId))
-      .and(QueryBuilder.eq("world_id",worldId))
+      .and(QueryBuilder.eq("world_name",worldName))
 
     val result = cassandraDbConnector.getSession.execute(query).one()
 
@@ -25,10 +25,10 @@ class PlayerDataDao(cassandraDbConnector: CassandraDbConnector) {
 
   //Saver
 
-  def savePlayerWorldData(playerId: UUID, worldId: UUID, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
+  def savePlayerWorldData(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
     cassandraDbConnector.getSession.execute(QueryBuilder.insertInto("player_data")
       .value("player_id",playerId)
-      .value("world_id",worldId)
+      .value("world_name",worldName)
       .value("health",health)
       .value("experience",experience)
       .value("level",level)
