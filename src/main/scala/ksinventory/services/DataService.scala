@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 import ksinventory.cache.PlayerWorldInventoryCache
 import ksinventory.dao.PlayerDataDao
+import ksinventory.messager.Messager
 import ksinventory.utils.Utils
 import org.bukkit.Bukkit.getServer
 
@@ -59,8 +60,10 @@ class DataService(playerDataDao: PlayerDataDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
+        Messager.messagePlayerSuccess(playerId, "Player Data Successfully Saved. You can silence this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
+        Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /inv retry")
         println(error)
     }
   }

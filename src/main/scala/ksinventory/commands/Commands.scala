@@ -1,24 +1,43 @@
 package ksinventory.commands
 
-import net.md_5.bungee.api.ChatColor
+import java.io.File
+
+import ksinventory.KSInventory
+import ksinventory.cache.PlayerWorldInventoryCache
+import org.bukkit.ChatColor
 import org.bukkit.command.{Command, CommandExecutor, CommandSender}
 import org.bukkit.entity.Player
 
-class Commands extends CommandExecutor{
-  var serialized = ""
+class Commands(plugin: KSInventory) extends CommandExecutor{
   override def onCommand(sender: CommandSender, command: Command, label: String, args: Array[String]): Boolean = {
     sender match {
       case player: Player =>
-        if (command.getName.equals("serialize")) {
-          val serializedItem = player.getInventory.getItemInMainHand.serialize()
-
-          println(serializedItem)
-          println(serializedItem.toString)
-          serialized = serializedItem.toString
-          return true
-        }
-        else if(command.getName.equals("deserialize")){
-
+        if(command.getName.equals("inv")){
+          if(args.length != 1){
+            player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v|retry]")
+            return true
+          }
+          else{
+            if(args(0).equals("quiet") || args(0).equals("q")){
+              plugin.getConfig.set(player.getUniqueId.toString, true)
+              PlayerWorldInventoryCache.setSuppressedPlayer(player.getUniqueId.toString)
+              plugin.saveConfig()
+              return true
+            }
+            else if(args(0).equals("verbose") || args(0).equals("v")){
+              plugin.getConfig.set(player.getUniqueId.toString, null)
+              PlayerWorldInventoryCache.removeSuppressedPlayer(player.getUniqueId.toString)
+              plugin.saveConfig()
+              return true
+            }
+            else if(args(0).equals("retry")){
+              return true
+            }
+            else{
+              player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v|retry]")
+              return true
+            }
+          }
         }
       case _ =>
         sender.sendMessage(ChatColor.RED + "Command can only be used by players")

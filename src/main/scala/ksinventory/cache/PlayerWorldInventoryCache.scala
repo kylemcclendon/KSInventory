@@ -10,6 +10,7 @@ object PlayerWorldInventoryCache {
   var playerWorldEndInventoryMap: mutable.Map[(UUID, String),List[ItemStack]] = mutable.Map()
   var playerWorldDataMap: mutable.Map[(UUID, String), (Float, Float, Float, Float, Float)] = mutable.Map()
   var playerEndRequest: mutable.Map[(UUID, String),Boolean] = mutable.Map()
+  var playerSuppressMessages: mutable.Map[String, Boolean] = mutable.Map()
 
   //Containers
   def playerInventoryContains(playerId: UUID, worldName: String): Boolean ={
@@ -41,6 +42,10 @@ object PlayerWorldInventoryCache {
     playerEndRequest.getOrElse((playerId,worldName),false)
   }
 
+  def getPlayerSuppression(playerId: String): Boolean = {
+    playerSuppressMessages.getOrElse(playerId, false)
+  }
+
   //Setters
   def setPlayerData(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
     playerWorldDataMap((playerId,worldName)) = (health, experience,level,food,saturation)
@@ -56,5 +61,19 @@ object PlayerWorldInventoryCache {
 
   def setEndRequest(playerId: UUID, worldName: String, request: Boolean): Unit = {
     playerEndRequest((playerId,worldName)) = request
+  }
+
+  def setSuppressedPlayers(players: Set[String]): Unit ={
+    players.foreach((player) => {
+      playerSuppressMessages(player) = true
+    })
+  }
+
+  def setSuppressedPlayer(player: String): Unit ={
+    playerSuppressMessages(player) = true
+  }
+
+  def removeSuppressedPlayer(player: String): Unit ={
+    playerSuppressMessages(player) = false
   }
 }

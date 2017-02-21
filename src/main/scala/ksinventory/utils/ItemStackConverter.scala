@@ -9,10 +9,8 @@ import ksinventory.models._
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
-import org.bukkit.entity.Horse.Color
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta._
-import org.bukkit.potion.{PotionData, PotionEffect, PotionType}
 
 class ItemStackConverter {
   def convertItemStacksToInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): List[PlayerInventory] ={
@@ -84,7 +82,7 @@ class ItemStackConverter {
       var lore = item.getItemMeta.getLore
 
       item.getType match {
-        case Material.BANNER => {
+        case Material.BANNER =>
           val banner = item.getItemMeta.asInstanceOf[BannerMeta]
 
           val patterns = banner.getPatterns.asScala.map((pattern)=>{
@@ -92,44 +90,36 @@ class ItemStackConverter {
           }).asJava
 
           bannerMeta = patterns
-        }
-        case Material.BOOK_AND_QUILL => {
+        case Material.BOOK_AND_QUILL =>
           //Only set pages
           val book = item.getItemMeta.asInstanceOf[BookMeta]
 
           bookMeta = new BookMetaUDT(null, null, book.getPages)
-        }
-        case Material.WRITTEN_BOOK => {
+        case Material.WRITTEN_BOOK =>
           //Set all book meta
           val book = item.getItemMeta.asInstanceOf[BookMeta]
 
           bookMeta = new BookMetaUDT(book.getAuthor, book.getTitle, book.getPages)
-        }
-        case Material.MONSTER_EGG => {
+        case Material.MONSTER_EGG =>
           eggMeta = item.getItemMeta.asInstanceOf[SpawnEggMeta].getSpawnedType.toString
-        }
-        case Material.SKULL_ITEM => {
+        case Material.SKULL_ITEM =>
           //check for skull meta, might not have one
           if(item.hasItemMeta){
             skullMeta = item.getItemMeta.asInstanceOf[SkullMeta].getOwner
           }
-        }
-        case Material.POTION | Material.LINGERING_POTION | Material.SPLASH_POTION | Material.TIPPED_ARROW => {
+        case Material.POTION | Material.LINGERING_POTION | Material.SPLASH_POTION | Material.TIPPED_ARROW =>
           val potion = item.getItemMeta.asInstanceOf[PotionMeta]
 
           potionMeta = new PotionMetaUDT(potion.getBasePotionData.getType.toString, potion.getBasePotionData.isUpgraded, potion.getBasePotionData.isExtended)
-        }
-        case Material.LEATHER_BOOTS | Material.LEATHER_CHESTPLATE | Material.LEATHER_HELMET | Material.LEATHER_LEGGINGS => {
+        case Material.LEATHER_BOOTS | Material.LEATHER_CHESTPLATE | Material.LEATHER_HELMET | Material.LEATHER_LEGGINGS =>
           val leatherColor = item.getItemMeta.asInstanceOf[LeatherArmorMeta].getColor
           leather = new ColorUDT(leatherColor.getRed, leatherColor.getGreen, leatherColor.getBlue)
-        }
-        case Material.MAP => {
+        case Material.MAP =>
           val map = item.getItemMeta.asInstanceOf[MapMeta]
           val mapColor = map.getColor
 
           mapMeta = new MapMetaUDT(new ColorUDT(mapColor.getRed, mapColor.getGreen, mapColor.getBlue), map.getLocationName, map.isScaling)
-        }
-        case Material.FIREWORK => {
+        case Material.FIREWORK =>
           val firework = item.getItemMeta.asInstanceOf[FireworkMeta]
 
           val effects = firework.getEffects.asScala.map((effect)=>{
@@ -144,7 +134,6 @@ class ItemStackConverter {
           }).asJava
 
           fireworkMeta = new FireworkMetaUDT(firework.getPower, effects)
-        }
 
         case Material.BLACK_SHULKER_BOX |
              Material.BLUE_SHULKER_BOX |
@@ -161,12 +150,9 @@ class ItemStackConverter {
              Material.RED_SHULKER_BOX |
              Material.SILVER_SHULKER_BOX |
              Material.WHITE_SHULKER_BOX |
-             Material.YELLOW_SHULKER_BOX => {
+             Material.YELLOW_SHULKER_BOX =>
           //TODO set internals
-        }
-        case _ => {
-          //Do nothing
-        }
+        case _ => //Do nothing
       }
 
       if(item.getEnchantments.size > 0){

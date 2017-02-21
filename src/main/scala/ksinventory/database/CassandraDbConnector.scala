@@ -28,10 +28,12 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
     session
   }
 
-  def closeSession ={
-    session.close()
-    mappingManager = null
-    session = null
+  def closeSession(): Unit ={
+    if(session != null) {
+      session.close()
+      mappingManager = null
+      session = null
+    }
   }
 
   def createSessionAndInitKeySpace(address: String, port: Int, keySpace: String, userName: String, password: String): Session = lock.synchronized {
@@ -55,13 +57,13 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
     session
   }
 
-  def getMapper(): MappingManager = {
+  def getMapper: MappingManager = {
     if(mappingManager == null){
       if(session == null){
         createSessionAndInitKeySpace(getHost, getPort, getKeySpace, getUserName, getPassword)
       }
       else{
-        mappingManager = new MappingManager(session);
+        mappingManager = new MappingManager(session)
       }
     }
     mappingManager

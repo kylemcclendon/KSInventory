@@ -3,6 +3,6 @@ main: ksinventory.KSInventory
 version: 1.0
 
 commands:
-   serialize:
-      description: Serializes item in main hand
-      usage: /serialize
+   inv:
+      description: Used to suppress messages
+      usage: /inv [quiet|q|verbose|v]

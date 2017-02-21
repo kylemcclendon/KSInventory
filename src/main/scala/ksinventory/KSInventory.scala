@@ -1,5 +1,9 @@
 package ksinventory
 
+import java.io.File
+import collection.JavaConverters._
+
+import ksinventory.cache.PlayerWorldInventoryCache
 import ksinventory.commands.Commands
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
@@ -10,12 +14,14 @@ import org.bukkit.plugin.java.JavaPlugin
 class KSInventory extends JavaPlugin{
   override def onEnable(): Unit = {
     val pm = getServer.getPluginManager
-    val commands = new Commands()
+    val commands = new Commands(this)
     pm.registerEvents(new worldChangeEvent(), this)
     pm.registerEvents(new playerJoinLeaveEvent(), this)
     pm.registerEvents(new endChestEvents(),this)
 
-    getCommand("serialize").setExecutor(commands)
+    getCommand("inv").setExecutor(commands)
+    createConfig()
+    PlayerWorldInventoryCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
     getLogger.info("Enabling KSInventory")
     getLogger.info("KSInventory Enabled")
   }
@@ -28,7 +34,26 @@ class KSInventory extends JavaPlugin{
     }
 
     getLogger.info("All database requests resolved. Shutting down database connection...")
-    CassandraDbConnector.closeSession
+    CassandraDbConnector.closeSession()
     getLogger.info("Database connection shut down. KSInventory Disabled")
+  }
+
+  private def createConfig() {
+    try {
+      if (!getDataFolder.exists()) {
+        getDataFolder.mkdirs()
+      }
+      val file = new File(getDataFolder, "config.yml")
+      if (!file.exists()) {
+        getLogger.info("Config.yml not found, creating!")
+//        saveDefaultConfig()
+      } else {
+        getLogger.info("Config.yml found, loading!")
+      }
+    } catch {
+      case e: Exception => e.printStackTrace()
+
+    }
+
   }
 }

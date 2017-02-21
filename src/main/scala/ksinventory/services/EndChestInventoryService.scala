@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 import ksinventory.cache.PlayerWorldInventoryCache
 import ksinventory.dao.EndChestInventoryDao
+import ksinventory.messager.Messager
 import ksinventory.models.EndInventory
 import ksinventory.utils.{ItemStackConverter, Utils}
 import org.bukkit.inventory.ItemStack
@@ -51,8 +52,10 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
+        Messager.messagePlayerSuccess(playerId, "Ender Chest Inventory Successfully Saved. You can silence this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
+        Messager.messagePlayerFailure(playerId, "Ender Chest Inventory Save Failed! You can retry the save with /inv retry")
         println(error)
     }
   }
