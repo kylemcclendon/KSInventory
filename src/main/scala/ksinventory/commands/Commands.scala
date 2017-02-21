@@ -3,7 +3,7 @@ package ksinventory.commands
 import java.io.File
 
 import ksinventory.KSInventory
-import ksinventory.cache.PlayerWorldInventoryCache
+import ksinventory.cache.{MessageSuppressionCache, PlayerWorldInventoryCache}
 import org.bukkit.ChatColor
 import org.bukkit.command.{Command, CommandExecutor, CommandSender}
 import org.bukkit.entity.Player
@@ -20,13 +20,15 @@ class Commands(plugin: KSInventory) extends CommandExecutor{
           else{
             if(args(0).equals("quiet") || args(0).equals("q")){
               plugin.getConfig.set(player.getUniqueId.toString, true)
-              PlayerWorldInventoryCache.setSuppressedPlayer(player.getUniqueId.toString)
+              MessageSuppressionCache.setSuppressedPlayer(player.getUniqueId.toString)
+              player.sendMessage(ChatColor.GRAY + "Inventory nessages suppressed. To re-enable, use /inv verbose")
               plugin.saveConfig()
               return true
             }
             else if(args(0).equals("verbose") || args(0).equals("v")){
               plugin.getConfig.set(player.getUniqueId.toString, null)
-              PlayerWorldInventoryCache.removeSuppressedPlayer(player.getUniqueId.toString)
+              MessageSuppressionCache.removeSuppressedPlayer(player.getUniqueId.toString)
+              player.sendMessage(ChatColor.GRAY + "Inventory messages re-enabled. To suppress them, use /inv quiet")
               plugin.saveConfig()
               return true
             }

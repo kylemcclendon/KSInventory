@@ -76,10 +76,10 @@ class ItemStackConverter {
       var skullMeta: String = null
       var fireworkMeta: FireworkMetaUDT = null
 
-      var displayName = item.getItemMeta.getDisplayName
+      val displayName = item.getItemMeta.getDisplayName
       var enchantments: scala.collection.mutable.Map[String, Integer] = null
 
-      var lore = item.getItemMeta.getLore
+      val lore = item.getItemMeta.getLore
 
       item.getType match {
         case Material.BANNER =>

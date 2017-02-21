@@ -50,7 +50,7 @@ class InventoryService(inventoryDao: InventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        Messager.messagePlayerSuccess(playerId, "Player Inventory Successfully Saved. You can silence this message with /inv quiet")
+        Messager.messagePlayerSuccess(playerId, "Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
         Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the save with /inv retry")

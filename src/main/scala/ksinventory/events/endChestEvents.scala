@@ -1,6 +1,6 @@
 package ksinventory.events
 
-import ksinventory.cache.PlayerWorldInventoryCache
+import ksinventory.cache.EndChestCache
 import ksinventory.services.EndChestInventoryService
 import ksinventory.utils.Utils.getShortenedWorldName
 import org.bukkit.{ChatColor, Material}
@@ -31,7 +31,7 @@ class endChestEvents extends Listener{
   @EventHandler
   def attemptOpenEnderChest(playerRightClickEvent: PlayerInteractEvent): Unit ={
     if(playerRightClickEvent.getClickedBlock != null && playerRightClickEvent.getClickedBlock.getType.equals(Material.ENDER_CHEST)){
-      if(PlayerWorldInventoryCache.getPlayerEndRequest(playerRightClickEvent.getPlayer.getUniqueId, getShortenedWorldName(playerRightClickEvent.getPlayer.getWorld.getName))){
+      if(EndChestCache.getPlayerEndRequest(playerRightClickEvent.getPlayer.getUniqueId, getShortenedWorldName(playerRightClickEvent.getPlayer.getWorld.getName))){
         playerRightClickEvent.getPlayer.sendMessage(ChatColor.RED + "Ender Chest Inventory Not Yet Set For This World. Please Try Again In 5 seconds...")
         playerRightClickEvent.setCancelled(true)
       }

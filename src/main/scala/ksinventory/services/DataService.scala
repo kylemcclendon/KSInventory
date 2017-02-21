@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.PlayerWorldInventoryCache
+import ksinventory.cache.PlayerWorldDataCache
 import ksinventory.dao.PlayerDataDao
 import ksinventory.messager.Messager
 import ksinventory.utils.Utils
@@ -13,9 +13,9 @@ import org.bukkit.Bukkit.getServer
 
 class DataService(playerDataDao: PlayerDataDao) {
   def setPlayerWorldData(playerId: UUID, worldName: String): Unit ={
-    if(PlayerWorldInventoryCache.playerDataContains(playerId,worldName)){
+    if(PlayerWorldDataCache.playerDataContains(playerId,worldName)){
       val player = getServer.getPlayer(playerId)
-      val playerData = PlayerWorldInventoryCache.getPlayerData(playerId,worldName)
+      val playerData = PlayerWorldDataCache.getPlayerData(playerId,worldName)
 
       player.setHealth(playerData._1)
       player.setExp(playerData._2)
@@ -28,7 +28,7 @@ class DataService(playerDataDao: PlayerDataDao) {
       val player = getServer.getPlayer(playerId)
 
       Utils.activeRequests += 1
-      val f : Future[Tuple5[Float, Float, Float, Float, Float]] = Future {
+      val f : Future[(Float, Float, Float, Float, Float)] = Future {
         playerDataDao.getPlayerData(playerId,worldName)
       }
 
@@ -60,7 +60,7 @@ class DataService(playerDataDao: PlayerDataDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        Messager.messagePlayerSuccess(playerId, "Player Data Successfully Saved. You can silence this message with /inv quiet")
+        Messager.messagePlayerSuccess(playerId, "Player Data Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
         Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /inv retry")
@@ -69,7 +69,7 @@ class DataService(playerDataDao: PlayerDataDao) {
   }
 
   def setPlayerDataCache(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
-    PlayerWorldInventoryCache.setPlayerData(playerId, worldName, health, experience, level, food, saturation)
+    PlayerWorldDataCache.setPlayerData(playerId, worldName, health, experience, level, food, saturation)
   }
 }
 

@@ -14,7 +14,7 @@ class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
 
   def getPlayerEndInventory(playerId: UUID, worldName: String): List[EndInventory] = {
     try{
-      val mapper: Mapper[EndInventory] = cassandraDbConnector.getMapper.mapper(classOf[EndInventory]);
+      val mapper: Mapper[EndInventory] = cassandraDbConnector.getMapper.mapper(classOf[EndInventory])
 
       val query = QueryBuilder.select().from(cassandraDbConnector.getKeySpace, "end_inventory")
         .where(QueryBuilder.eq("player_id", playerId)).and(QueryBuilder.eq("world_name", worldName))
@@ -34,7 +34,7 @@ class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
 
   def savePlayerEndInventory(playerId: UUID, worldName: String, inventoryList: List[EndInventory]): Unit ={
     var batch = new BatchStatement()
-    val mapper = CassandraDbConnector.getMapper().mapper(classOf[EndInventory])
+    val mapper = CassandraDbConnector.getMapper.mapper(classOf[EndInventory])
 
     inventoryList.map((inventory)=> {
       batch.add(mapper.saveQuery(inventory))

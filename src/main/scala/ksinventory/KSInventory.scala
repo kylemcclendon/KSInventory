@@ -1,14 +1,13 @@
 package ksinventory
 
 import java.io.File
-import collection.JavaConverters._
 
-import ksinventory.cache.PlayerWorldInventoryCache
+import collection.JavaConverters._
+import ksinventory.cache.MessageSuppressionCache
 import ksinventory.commands.Commands
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
 import ksinventory.utils.Utils
-import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 class KSInventory extends JavaPlugin{
@@ -21,7 +20,7 @@ class KSInventory extends JavaPlugin{
 
     getCommand("inv").setExecutor(commands)
     createConfig()
-    PlayerWorldInventoryCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
+    MessageSuppressionCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
     getLogger.info("Enabling KSInventory")
     getLogger.info("KSInventory Enabled")
   }
@@ -46,7 +45,6 @@ class KSInventory extends JavaPlugin{
       val file = new File(getDataFolder, "config.yml")
       if (!file.exists()) {
         getLogger.info("Config.yml not found, creating!")
-//        saveDefaultConfig()
       } else {
         getLogger.info("Config.yml found, loading!")
       }
