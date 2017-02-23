@@ -108,11 +108,11 @@ class Commands(plugin: KSInventory) extends CommandExecutor{
           else{
             player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v] or /inv [retry inv|data|end]")
           }
-          true
+          return true
         }
       case _ =>
         sender.sendMessage(ChatColor.RED + "Command can only be used by players")
-        false
+        return true
     }
     false
   }
