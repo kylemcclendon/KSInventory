@@ -18,7 +18,6 @@ class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
 
       val query = QueryBuilder.select().from(cassandraDbConnector.getKeySpace, "end_inventory")
         .where(QueryBuilder.eq("player_id", playerId)).and(QueryBuilder.eq("world_name", worldName))
-
       val results: ResultSet = cassandraDbConnector.getSession.execute(query)
       val inventories: Result[EndInventory] = mapper.map(results)
       inventories.all().asScala.toList
