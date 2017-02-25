@@ -48,25 +48,26 @@ class DataService(playerDataDao: PlayerDataDao) {
     }
   }
 
-  def savePlayerData(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
-    setPlayerDataCache(playerId,worldName,health,experience,level,food,saturation)
-    RetryCache.clearRetry(playerId, "data")
+  def persistPlayerData(playerId: UUID, worldName: String): Unit ={
+    val playerData = PlayerWorldDataCache.getPlayerData(playerId, worldName)
+//    setPlayerDataCache(playerId,worldName,health,experience,level,food,saturation)
+    RetryCache.clearRetryRefined(playerId, worldName, "data")
 
     //Attempt Save To DB
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
-      playerDataDao.savePlayerWorldData(playerId,worldName,health,experience,level,food,saturation)
+      playerDataDao.savePlayerWorldData(playerId,worldName,playerData._1,playerData._2,playerData._3,playerData._4,playerData._5)
     }
 
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        RetryCache.clearRetryRequest(playerId, "data")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "data")
         Messager.messagePlayerSuccess(playerId, "Player Data Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        RetryCache.setRetry(playerId, worldName, "data")
-        RetryCache.clearRetryRequest(playerId, "data")
+        RetryCache.setRetryRefined(playerId, worldName, "data")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "data")
         Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /inv retry")
         println(error)
     }

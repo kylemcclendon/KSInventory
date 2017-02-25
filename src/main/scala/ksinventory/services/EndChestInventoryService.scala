@@ -40,9 +40,9 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
     }
   }
 
-  def savePlayerEndInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit ={
-    EndChestCache.setPlayerEndInventory(playerId, worldName,inventory)
-    RetryCache.clearRetry(playerId, "end")
+  def savePlayerEndInventory(playerId: UUID, worldName: String): Unit ={
+    val inventory = EndChestCache.getPlayerEndInventory(playerId, worldName)
+    RetryCache.clearRetryRefined(playerId, worldName, "end")
 
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
@@ -53,12 +53,12 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        RetryCache.clearRetryRequest(playerId, "end")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "end")
         Messager.messagePlayerSuccess(playerId, "Chest Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        RetryCache.setRetry(playerId,worldName, "end")
-        RetryCache.clearRetryRequest(playerId, "end")
+        RetryCache.setRetryRefined(playerId,worldName, "end")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "end")
         Messager.messagePlayerFailure(playerId, "Ender Chest Inventory Save Failed! You can retry the save with /inv retry end")
         println(error)
     }

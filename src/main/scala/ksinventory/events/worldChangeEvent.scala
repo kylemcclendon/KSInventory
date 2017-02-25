@@ -1,5 +1,6 @@
 package ksinventory.events
 
+import ksinventory.cache.RetryCache
 import ksinventory.utils.Utils.getShortenedWorldName
 import ksinventory.services.{DataService, EndChestInventoryService, InventoryService}
 import org.bukkit.event.{EventHandler, Listener}
@@ -15,8 +16,11 @@ class worldChangeEvent extends Listener{
     val playerId = event.getPlayer.getUniqueId
 
     //Persist To Cache and DB
-    InventoryService.savePlayerInventory(playerId, oldWorldNameShortened, oldPlayerInventory.toList)
-    DataService.savePlayerData(playerId, oldWorldNameShortened, oldPlayerData._1.toFloat, oldPlayerData._2, oldPlayerData._3, oldPlayerData._4, oldPlayerData._5)
+    InventoryService.setPlayerInventoryCache(playerId, oldWorldNameShortened, oldPlayerInventory.toList)
+    DataService.setPlayerDataCache(playerId, oldWorldNameShortened, oldPlayerData._1.toFloat, oldPlayerData._2, oldPlayerData._3, oldPlayerData._4, oldPlayerData._5)
+
+    InventoryService.persistPlayerInventory(playerId, oldWorldNameShortened)
+    DataService.persistPlayerData(playerId, oldWorldNameShortened)
 
     //Set New Data
     if(!oldWorldNameShortened.equals(newWorldNameShortened)){
@@ -30,6 +34,11 @@ class worldChangeEvent extends Listener{
       InventoryService.setPlayerWorldInventory(playerId, newWorldNameShortened)
       DataService.setPlayerWorldData(playerId, newWorldNameShortened)
       EndChestInventoryService.setPlayerWorldEndInventory(playerId, newWorldNameShortened)
+
+      RetryCache.clearRetryRefined(playerId, newWorldNameShortened, "data")
+      RetryCache.clearRetryRequestRefined(playerId, newWorldNameShortened, "data")
+      RetryCache.clearRetryRefined(playerId, newWorldNameShortened, "inv")
+      RetryCache.clearRetryRequestRefined(playerId, newWorldNameShortened, "inv")
     }
   }
 }

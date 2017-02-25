@@ -23,67 +23,122 @@ class RetryCommands(plugin: KSInventory) extends CommandExecutor {
             }
             else{
               if(args(0).equals("data")){
-                val worldAndTime = RetryCache.getRetry(player.getUniqueId,"data")
-                if(worldAndTime._2 == -1){
-                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+                val time = RetryCache.getRetryRefined(player.getUniqueId, args(1), "data")
+                if(time == -1){
+                  player.sendMessage(ChatColor.RED + "Nothing to retry")
                 }
-                else if(worldAndTime._2 > System.currentTimeMillis()){
-                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+                else if(time > System.currentTimeMillis()){
+                  player.sendMessage(ChatColor.RED + "You can only retry a failed save once every minute")
                 }
                 else{
-                  if(RetryCache.getRetryRequest(player.getUniqueId, "data")){
+                  if(RetryCache.getRetryRequestRefined(player.getUniqueId, args(1), "data")){
                     player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
                   }
-                  else {
-                    val playerData = PlayerWorldDataCache.getPlayerData(player.getUniqueId, worldAndTime._1)
-                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player data for world(s) starting with " + worldAndTime._1)
-                    RetryCache.setRetryRequest(player.getUniqueId, "data")
-                    DataService.savePlayerData(player.getUniqueId, worldAndTime._1, playerData._1, playerData._2, playerData._3, playerData._4, playerData._5)
+                  else{
+                    val playerData = PlayerWorldDataCache.getPlayerData(player.getUniqueId, args(1))
+                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player data for world(s) starting with " + args(1))
+                    RetryCache.setRetryRequestRefined(player.getUniqueId, args(1), "data")
+                    DataService.persistPlayerData(player.getUniqueId, args(1))
                   }
                 }
+//                Old Retry code
+//                val worldAndTime = RetryCache.getRetry(player.getUniqueId,"data")
+//                if(worldAndTime._2 == -1){
+//                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+//                }
+//                else if(worldAndTime._2 > System.currentTimeMillis()){
+//                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+//                }
+//                else{
+//                  if(RetryCache.getRetryRequest(player.getUniqueId, "data")){
+//                    player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
+//                  }
+//                  else {
+//                    val playerData = PlayerWorldDataCache.getPlayerData(player.getUniqueId, worldAndTime._1)
+//                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player data for world(s) starting with " + worldAndTime._1)
+//                    RetryCache.setRetryRequest(player.getUniqueId, "data")
+//                    DataService.savePlayerData(player.getUniqueId, worldAndTime._1, playerData._1, playerData._2, playerData._3, playerData._4, playerData._5)
+//                  }
+//                }
               }
               else if(args(0).equals("inv")){
-                val worldAndTime = RetryCache.getRetry(player.getUniqueId, "inv")
-                if(worldAndTime._2 == -1){
-                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+                val time = RetryCache.getRetryRefined(player.getUniqueId, args(1), "inv")
+                if(time == -1){
+                  player.sendMessage(ChatColor.RED + "Nothing to retry")
                 }
-                else if(worldAndTime._2 > System.currentTimeMillis()){
-                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+                else if(time > System.currentTimeMillis()){
+                  player.sendMessage(ChatColor.RED + "You can only retry a failed save once every minute")
                 }
                 else{
-                  //retry inv
-                  if(RetryCache.getRetryRequest(player.getUniqueId, "inv")){
+                  if(RetryCache.getRetryRequestRefined(player.getUniqueId, args(1), "inv")){
                     player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
                   }
-                  else {
-                    val playerInventory = PlayerWorldInventoryCache.getPlayerInventory(player.getUniqueId, worldAndTime._1)
-                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player inventory for world(s) starting with " + worldAndTime._1)
-                    RetryCache.setRetryRequest(player.getUniqueId, "inv")
-                    InventoryService.savePlayerInventory(player.getUniqueId, worldAndTime._1, playerInventory)
+                  else{
+                    val playerInventory = PlayerWorldInventoryCache.getPlayerInventory(player.getUniqueId, args(1))
+                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player inventory for world(s) starting with " + args(1))
+                    RetryCache.setRetryRequestRefined(player.getUniqueId, args(1), "inv")
+                    InventoryService.persistPlayerInventory(player.getUniqueId, args(1))
                   }
                 }
+//                Old Retry Code
+//                val worldAndTime = RetryCache.getRetry(player.getUniqueId, "inv")
+//                if(worldAndTime._2 == -1){
+//                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+//                }
+//                else if(worldAndTime._2 > System.currentTimeMillis()){
+//                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+//                }
+//                else{
+//                  retry inv
+//                  if(RetryCache.getRetryRequest(player.getUniqueId, "inv")){
+//                    player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
+//                  }
+//                  else {
+//                    val playerInventory = PlayerWorldInventoryCache.getPlayerInventory(player.getUniqueId, worldAndTime._1)
+//                    player.sendMessage(ChatColor.GRAY + "Attempting to retry saving player inventory for world(s) starting with " + worldAndTime._1)
+//                    RetryCache.setRetryRequest(player.getUniqueId, "inv")
+//                    InventoryService.savePlayerInventory(player.getUniqueId, worldAndTime._1, playerInventory)
+//                  }
+//                }
               }
               else if(args(0).equals("end")){
-                //retry end
-                val worldAndTime = RetryCache.getRetry(player.getUniqueId, "end")
-                if(worldAndTime._2 == -1){
-                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+                val time = RetryCache.getRetryRefined(player.getUniqueId, args(1), "end")
+                if(time == -1){
+                  player.sendMessage(ChatColor.RED + "Nothing to retry")
                 }
-                else if(worldAndTime._2 > System.currentTimeMillis()){
-                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+                else if(time > System.currentTimeMillis()){
+                  player.sendMessage(ChatColor.RED + "You can only retry a failed save once every minute")
                 }
                 else{
-                  //retry end inv
-                  if(RetryCache.getRetryRequest(player.getUniqueId, "end")){
+                  if(RetryCache.getRetryRequestRefined(player.getUniqueId, args(1), "end")){
                     player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
                   }
-                  else {
-                    val endInventory = EndChestCache.getPlayerEndInventory(player.getUniqueId, worldAndTime._1)
-                    player.sendMessage(ChatColor.GRAY + "Attempting to rety saving ender chest inventory for world(s) starting wtih " + worldAndTime._1)
-                    RetryCache.setRetryRequest(player.getUniqueId, "end")
-                    EndChestInventoryService.savePlayerEndInventory(player.getUniqueId, worldAndTime._1, endInventory)
+                  else{
+                    val endInventory = EndChestCache.getPlayerEndInventory(player.getUniqueId, args(1))
+                    player.sendMessage(ChatColor.GRAY + "Attempting to rety saving ender chest inventory for world(s) starting wtih " + args(1))
+                    RetryCache.setRetryRequestRefined(player.getUniqueId, args(1), "end")
+                    EndChestInventoryService.savePlayerEndInventory(player.getUniqueId, args(1))
                   }
                 }
+//                Old Retry Code
+//                val worldAndTime = RetryCache.getRetry(player.getUniqueId, "end")
+//                if(worldAndTime._2 == -1){
+//                  player.sendMessage(ChatColor.RED + "Nothing to retry.")
+//                }
+//                else if(worldAndTime._2 > System.currentTimeMillis()){
+//                  player.sendMessage(ChatColor.RED + "You can only retry a save once every minute")
+//                }
+//                else{
+//                  if(RetryCache.getRetryRequest(player.getUniqueId, "end")){
+//                    player.sendMessage(ChatColor.RED + "Save retry request already in progress...")
+//                  }
+//                  else {
+//                    val endInventory = EndChestCache.getPlayerEndInventory(player.getUniqueId, worldAndTime._1)
+//                    player.sendMessage(ChatColor.GRAY + "Attempting to rety saving ender chest inventory for world(s) starting wtih " + worldAndTime._1)
+//                    RetryCache.setRetryRequest(player.getUniqueId, "end")
+//                    EndChestInventoryService.savePlayerEndInventory(player.getUniqueId, worldAndTime._1, endInventory)
+//                  }
+//                }
               }
               else{
                 player.sendMessage(ChatColor.RED + "Invalid saveType. See /inv help")

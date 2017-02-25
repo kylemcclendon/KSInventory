@@ -22,16 +22,24 @@ class playerJoinLeaveEvent extends Listener{
   @EventHandler
   def onPlayerLeave(playerQuitEvent: PlayerQuitEvent): Unit ={
     val player = playerQuitEvent.getPlayer
+    val worldName = getShortenedWorldName(player.getWorld.getName)
 
-    InventoryService.savePlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getInventory.getContents.toList)
-    DataService.savePlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+    InventoryService.setPlayerInventoryCache(player.getUniqueId, worldName, player.getInventory.getContents.toList)
+    DataService.setPlayerDataCache(player.getUniqueId, worldName, player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+
+    InventoryService.persistPlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName))
+    DataService.persistPlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName))
   }
 
   @EventHandler
   def onPlayerKick(playerKickEvent: PlayerKickEvent): Unit ={
     val player = playerKickEvent.getPlayer
+    val worldName = getShortenedWorldName(player.getWorld.getName)
 
-    InventoryService.savePlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getInventory.getContents.toList)
-    DataService.savePlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName), player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+    InventoryService.setPlayerInventoryCache(player.getUniqueId, worldName, player.getInventory.getContents.toList)
+    DataService.setPlayerDataCache(player.getUniqueId, worldName, player.getHealth.toFloat,player.getExp,player.getLevel,player.getFoodLevel,player.getSaturation)
+
+    InventoryService.persistPlayerInventory(player.getUniqueId, getShortenedWorldName(player.getWorld.getName))
+    DataService.persistPlayerData(player.getUniqueId, getShortenedWorldName(player.getWorld.getName))
   }
 }

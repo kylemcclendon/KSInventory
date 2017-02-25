@@ -38,9 +38,9 @@ class InventoryService(inventoryDao: InventoryDao) {
     }
   }
 
-  def savePlayerInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit ={
-    PlayerWorldInventoryCache.setPlayerInventory(playerId, worldName, inventory)
-    RetryCache.clearRetry(playerId, "inv")
+  def persistPlayerInventory(playerId: UUID, worldName: String): Unit ={
+    val inventory = PlayerWorldInventoryCache.getPlayerInventory(playerId, worldName)
+    RetryCache.clearRetryRefined(playerId, worldName, "inv")
 
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
@@ -51,12 +51,12 @@ class InventoryService(inventoryDao: InventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        RetryCache.clearRetryRequest(playerId, "inv")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
         Messager.messagePlayerSuccess(playerId, "Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        RetryCache.setRetry(playerId,worldName, "inv")
-        RetryCache.clearRetryRequest(playerId, "inv")
+        RetryCache.setRetryRefined(playerId,worldName, "inv")
+        RetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
         Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the save with /inv retry")
         println(error)
     }
