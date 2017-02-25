@@ -1,12 +1,12 @@
 package ksinventory.models
 
 import java.util
-import com.datastax.driver.mapping.annotations.{Field, UDT}
+import com.datastax.driver.mapping.annotations.UDT
 
 @UDT(keyspace = "minecraft", name="banner_meta")
 class BannerMetaUDT(){
-  private var base_color: String = null
-  private var patterns: util.List[PatternUDT] = null
+  private var base_color: String = _
+  private var patterns: util.List[PatternUDT] = _
 
   def this(bc: String, pats: util.List[PatternUDT]){
     this()

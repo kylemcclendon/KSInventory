@@ -8,7 +8,7 @@ import ksinventory.database.CassandraDbConnector
 class PlayerDataDao(cassandraDbConnector: CassandraDbConnector) {
   //Getter
 
-  def getPlayerData(playerId: UUID, worldName: String): Tuple5[Float, Float, Float, Float, Float]={
+  def getPlayerData(playerId: UUID, worldName: String): (Float, Float, Float, Float, Float)={
     val query = QueryBuilder.select()
       .from(cassandraDbConnector.getKeySpace, "player_data")
       .where(QueryBuilder.eq("player_id", playerId))

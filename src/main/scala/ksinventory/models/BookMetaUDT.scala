@@ -2,14 +2,14 @@ package ksinventory.models
 
 import java.util
 
-import com.datastax.driver.mapping.annotations.{Field, Frozen, UDT}
+import com.datastax.driver.mapping.annotations.{Frozen, UDT}
 
 @UDT(keyspace="minecraft",name="book_meta")
 class BookMetaUDT(){
-  var author: String = null
-  var title: String = null
+  var author: String = _
+  var title: String = _
   @Frozen
-  var pages: util.List[String] = null
+  var pages: util.List[String] = _
 
   def this(a: String, t: String, p: util.List[String]){
     this()

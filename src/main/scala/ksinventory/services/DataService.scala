@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.PlayerWorldDataCache
+import ksinventory.cache.{PlayerWorldDataCache, RetryCache}
 import ksinventory.dao.PlayerDataDao
 import ksinventory.messager.Messager
 import ksinventory.utils.Utils
@@ -50,7 +50,7 @@ class DataService(playerDataDao: PlayerDataDao) {
 
   def savePlayerData(playerId: UUID, worldName: String, health: Float, experience: Float, level: Float, food: Float, saturation: Float): Unit ={
     setPlayerDataCache(playerId,worldName,health,experience,level,food,saturation)
-    PlayerWorldDataCache.clearPlayerDataRetry(playerId)
+    RetryCache.clearRetry(playerId, "data")
 
     //Attempt Save To DB
     Utils.activeRequests += 1
@@ -61,13 +61,12 @@ class DataService(playerDataDao: PlayerDataDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        PlayerWorldDataCache.clearPlayerDataRetry(playerId)
-        PlayerWorldDataCache.clearRetryRequest(playerId)
+        RetryCache.clearRetryRequest(playerId, "data")
         Messager.messagePlayerSuccess(playerId, "Player Data Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        PlayerWorldDataCache.setPlayerDataRetry(playerId, worldName)
-        PlayerWorldDataCache.clearRetryRequest(playerId)
+        RetryCache.setRetry(playerId, worldName, "data")
+        RetryCache.clearRetryRequest(playerId, "data")
         Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /inv retry")
         println(error)
     }

@@ -1,7 +1,6 @@
 package ksinventory.models
 
 import com.datastax.driver.mapping.annotations.{Field, UDT}
-import org.bukkit.Color
 
 @UDT(keyspace="minecraft", name="color")
 class ColorUDT(){
@@ -18,8 +17,4 @@ class ColorUDT(){
     this.green = g
     this.blue = b
   }
-
-//  def getMinecraftColor(): Color ={
-//    Color.fromRGB(this.red,this.green,this.blue)
-//  }
 }

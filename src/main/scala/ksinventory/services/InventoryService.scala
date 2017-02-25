@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.PlayerWorldInventoryCache
+import ksinventory.cache.{PlayerWorldInventoryCache, RetryCache}
 import ksinventory.dao.InventoryDao
 import ksinventory.messager.Messager
 import ksinventory.models.PlayerInventory
@@ -40,7 +40,7 @@ class InventoryService(inventoryDao: InventoryDao) {
 
   def savePlayerInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit ={
     PlayerWorldInventoryCache.setPlayerInventory(playerId, worldName, inventory)
-    PlayerWorldInventoryCache.clearPlayerInventoryRetry(playerId)
+    RetryCache.clearRetry(playerId, "inv")
 
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
@@ -51,13 +51,12 @@ class InventoryService(inventoryDao: InventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        PlayerWorldInventoryCache.clearPlayerInventoryRetry(playerId)
-        PlayerWorldInventoryCache.clearRetryRequest(playerId)
+        RetryCache.clearRetryRequest(playerId, "inv")
         Messager.messagePlayerSuccess(playerId, "Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        PlayerWorldInventoryCache.setPlayerInventoryRetry(playerId,worldName)
-        PlayerWorldInventoryCache.clearRetryRequest(playerId)
+        RetryCache.setRetry(playerId,worldName, "inv")
+        RetryCache.clearRetryRequest(playerId, "inv")
         Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the save with /inv retry")
         println(error)
     }

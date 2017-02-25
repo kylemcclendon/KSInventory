@@ -7,7 +7,7 @@ import com.datastax.driver.core.{BatchStatement, ResultSet}
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.mapping.{Mapper, Result}
 import ksinventory.database.CassandraDbConnector
-import ksinventory.models.{EndInventory, PlayerInventory}
+import ksinventory.models.EndInventory
 
 class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
   //Getter
@@ -32,7 +32,7 @@ class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
   //Saver
 
   def savePlayerEndInventory(playerId: UUID, worldName: String, inventoryList: List[EndInventory]): Unit ={
-    var batch = new BatchStatement()
+    val batch = new BatchStatement()
     val mapper = CassandraDbConnector.getMapper.mapper(classOf[EndInventory])
 
     inventoryList.map((inventory)=> {

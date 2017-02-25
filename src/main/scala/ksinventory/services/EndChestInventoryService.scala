@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.EndChestCache
+import ksinventory.cache.{EndChestCache, RetryCache}
 import ksinventory.dao.EndChestInventoryDao
 import ksinventory.messager.Messager
 import ksinventory.models.EndInventory
@@ -42,7 +42,7 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
 
   def savePlayerEndInventory(playerId: UUID, worldName: String, inventory: List[ItemStack]): Unit ={
     EndChestCache.setPlayerEndInventory(playerId, worldName,inventory)
-    EndChestCache.clearEndRetry(playerId)
+    RetryCache.clearRetry(playerId, "end")
 
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
@@ -53,13 +53,12 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
     f onComplete {
       case Success(success) =>
         Utils.activeRequests -= 1
-        EndChestCache.clearEndRetry(playerId)
-        EndChestCache.clearRetryRequest(playerId)
+        RetryCache.clearRetryRequest(playerId, "end")
         Messager.messagePlayerSuccess(playerId, "Chest Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        EndChestCache.setEndRetry(playerId,worldName)
-        EndChestCache.clearRetryRequest(playerId)
+        RetryCache.setRetry(playerId,worldName, "end")
+        RetryCache.clearRetryRequest(playerId, "end")
         Messager.messagePlayerFailure(playerId, "Ender Chest Inventory Save Failed! You can retry the save with /inv retry end")
         println(error)
     }

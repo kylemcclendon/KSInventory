@@ -33,7 +33,7 @@ class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
   //Saver
 
   def savePlayerInventory(playerId: UUID, worldName: String, inventoryList: List[PlayerInventory]): Unit ={
-    var batch = new BatchStatement()
+    val batch = new BatchStatement()
     val mapper = CassandraDbConnector.getMapper.mapper(classOf[PlayerInventory])
 
     inventoryList.map((inventory)=> {

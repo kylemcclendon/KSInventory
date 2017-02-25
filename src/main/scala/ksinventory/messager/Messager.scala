@@ -2,7 +2,7 @@ package ksinventory.messager
 
 import java.util.UUID
 
-import ksinventory.cache.{MessageSuppressionCache, PlayerWorldInventoryCache}
+import ksinventory.cache.MessageSuppressionCache
 import org.bukkit.{Bukkit, ChatColor}
 
 object Messager {
