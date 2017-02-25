@@ -2,7 +2,7 @@ package ksinventory.utils
 
 import java.util
 import java.util.UUID
-import ksinventory.utils.Utils.{getColor,getFireworkEffect, getPotionData, getAsMinecraftPattern}
+import ksinventory.utils.UDTMinecraftConverter.{getColor,getFireworkEffect,getPotionData,getAsMinecraftPattern}
 
 import collection.JavaConverters._
 import ksinventory.models._
