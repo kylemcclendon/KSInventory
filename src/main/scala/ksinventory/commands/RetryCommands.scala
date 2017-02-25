@@ -1,40 +1,28 @@
 package ksinventory.commands
 
 import ksinventory.KSInventory
-import ksinventory.cache._
+import ksinventory.cache.{EndChestCache, PlayerWorldDataCache, PlayerWorldInventoryCache, RetryCache}
 import ksinventory.services.{DataService, EndChestInventoryService, InventoryService}
+import ksinventory.utils.Utils
 import org.bukkit.ChatColor
 import org.bukkit.command.{Command, CommandExecutor, CommandSender}
 import org.bukkit.entity.Player
 
-class Commands(plugin: KSInventory) extends CommandExecutor{
+class RetryCommands(plugin: KSInventory) extends CommandExecutor {
   override def onCommand(sender: CommandSender, command: Command, label: String, args: Array[String]): Boolean = {
     sender match {
       case player: Player =>
-        if(command.getName.equals("inv")){
-          if(args.length == 1){
-            if(args(0).equals("quiet") || args(0).equals("q")){
-              plugin.getConfig.set(player.getUniqueId.toString, true)
-              MessageSuppressionCache.setSuppressedPlayer(player.getUniqueId.toString)
-              player.sendMessage(ChatColor.GRAY + "Inventory nessages suppressed. To re-enable, use /inv verbose")
-              plugin.saveConfig()
-            }
-            else if(args(0).equals("verbose") || args(0).equals("v")){
-              plugin.getConfig.set(player.getUniqueId.toString, null)
-              MessageSuppressionCache.removeSuppressedPlayer(player.getUniqueId.toString)
-              player.sendMessage(ChatColor.GRAY + "Inventory messages re-enabled. To suppress them, use /inv quiet")
-              plugin.saveConfig()
-            }
-            else if(args(0).equals("retry")){
-              player.sendMessage(ChatColor.RED + "You must provide the item you want to retry (inv, data, end).")
+        if(command.getName.equals("retry")){
+          if(args.length != 2){
+            sender.sendMessage(ChatColor.RED + "Usage: /retry [saveType] [worldName]")
+            sender.sendMessage(ChatColor.RED + "See /inv help for saveTypes and worldNames")
+          }
+          else{
+            if(!Utils.getAllWorldNames.contains(args(1))){
+              sender.sendMessage(ChatColor.RED + "Invalid worldName. See /inv help")
             }
             else{
-              player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v] or /inv [retry inv|data|end]")
-            }
-          }
-          else if(args.length == 2){
-            if(args(0).equals("retry")){
-              if(args(1).equals("data")){
+              if(args(0).equals("data")){
                 val worldAndTime = RetryCache.getRetry(player.getUniqueId,"data")
                 if(worldAndTime._2 == -1){
                   player.sendMessage(ChatColor.RED + "Nothing to retry.")
@@ -54,7 +42,7 @@ class Commands(plugin: KSInventory) extends CommandExecutor{
                   }
                 }
               }
-              else if(args(1).equals("inv")){
+              else if(args(0).equals("inv")){
                 val worldAndTime = RetryCache.getRetry(player.getUniqueId, "inv")
                 if(worldAndTime._2 == -1){
                   player.sendMessage(ChatColor.RED + "Nothing to retry.")
@@ -75,7 +63,7 @@ class Commands(plugin: KSInventory) extends CommandExecutor{
                   }
                 }
               }
-              else if(args(1).equals("end")){
+              else if(args(0).equals("end")){
                 //retry end
                 val worldAndTime = RetryCache.getRetry(player.getUniqueId, "end")
                 if(worldAndTime._2 == -1){
@@ -98,22 +86,13 @@ class Commands(plugin: KSInventory) extends CommandExecutor{
                 }
               }
               else{
-                player.sendMessage(ChatColor.RED + "Usage: /inv retry [inv|data|end]")
+                player.sendMessage(ChatColor.RED + "Invalid saveType. See /inv help")
               }
             }
-            else{
-              player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v] or /inv [retry inv|data|end]")
-            }
           }
-          else{
-            player.sendMessage(ChatColor.RED + "Usage: /inv [quiet|q|verbose|v] or /inv [retry inv|data|end]")
-          }
-          return true
         }
-      case _ =>
-        sender.sendMessage(ChatColor.RED + "Command can only be used by players")
-        return true
+      case _ => sender.sendMessage(ChatColor.RED + "Command can only be used by players")
     }
-    false
+    true
   }
 }

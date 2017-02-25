@@ -5,4 +5,7 @@ version: 1.0
 commands:
    inv:
       description: Used to suppress messages
-      usage: /inv [quiet|q|verbose|v]
+      usage: /inv [help|quiet|q|verbose|v]
+   retry:
+      description: Used to retry a failed save
+      usage: /retry [saveType] [worldName]

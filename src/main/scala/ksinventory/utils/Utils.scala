@@ -6,7 +6,7 @@ import collection.JavaConverters._
 import ksinventory.models.ColorUDT
 import org.bukkit.block.banner.{Pattern, PatternType}
 import org.bukkit.potion.{PotionData, PotionType}
-import org.bukkit.{Color, DyeColor, FireworkEffect}
+import org.bukkit.{Bukkit, Color, DyeColor, FireworkEffect}
 
 object Utils {
 
@@ -19,6 +19,12 @@ object Utils {
     else{
       worldName
     }
+  }
+
+  def getAllWorldNames: Set[String] = {
+    Bukkit.getWorlds.asScala.map((world) => {
+      getShortenedWorldName(world.getName)
+    }).toSet
   }
 
   def getColor(r: Int, g: Int, b: Int): Color = {

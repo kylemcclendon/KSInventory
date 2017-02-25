@@ -4,7 +4,7 @@ import java.io.File
 
 import collection.JavaConverters._
 import ksinventory.cache.MessageSuppressionCache
-import ksinventory.commands.Commands
+import ksinventory.commands.{InventoryCommands, RetryCommands}
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
 import ksinventory.utils.Utils
@@ -13,12 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin
 class KSInventory extends JavaPlugin{
   override def onEnable(): Unit = {
     val pm = getServer.getPluginManager
-    val commands = new Commands(this)
+    val inventoryCommands = new InventoryCommands(this)
+    val retryCommands = new RetryCommands(this)
     pm.registerEvents(new worldChangeEvent(), this)
     pm.registerEvents(new playerJoinLeaveEvent(), this)
     pm.registerEvents(new endChestEvents(),this)
 
-    getCommand("inv").setExecutor(commands)
+    getCommand("inv").setExecutor(inventoryCommands)
+    getCommand("retry").setExecutor(retryCommands)
     createConfig()
     MessageSuppressionCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
     getLogger.info("Enabling KSInventory")
