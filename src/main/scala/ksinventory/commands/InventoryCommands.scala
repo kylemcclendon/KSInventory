@@ -2,6 +2,7 @@ package ksinventory.commands
 
 import ksinventory.KSInventory
 import ksinventory.cache.MessageSuppressionCache
+import ksinventory.utils.Utils
 import org.bukkit.ChatColor
 import org.bukkit.command.{Command, CommandExecutor, CommandSender}
 import org.bukkit.entity.Player
@@ -28,9 +29,10 @@ class InventoryCommands(plugin: KSInventory) extends CommandExecutor{
               player.sendMessage(ChatColor.RED + "You must provide the item you want to retry (inv, data, end).")
             }
             else if(args(0).equals("help")){
+              val worldNames = Utils.getAllWorldNames.mkString(",")
               player.sendMessage(ChatColor.GRAY + "Available commands: /inv, /retry")
               player.sendMessage(ChatColor.GRAY + "saveTypes: inv, data, end")
-              player.sendMessage(ChatColor.GRAY + "worldNames: aiedail, tanith, temp, old, new, hyrule")
+              player.sendMessage(ChatColor.GRAY + "worldNames: " + worldNames)
             }
             else{
               player.sendMessage(ChatColor.RED + "Usage: /inv [help|quiet|q|verbose|v]")

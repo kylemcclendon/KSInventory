@@ -2,7 +2,7 @@ package ksinventory.dao
 
 import java.util.UUID
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core._
 import com.datastax.driver.mapping.{Mapper, Result}

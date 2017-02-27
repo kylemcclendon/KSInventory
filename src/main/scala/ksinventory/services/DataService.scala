@@ -60,7 +60,7 @@ class DataService(playerDataDao: PlayerDataDao) {
     }
 
     f onComplete {
-      case Success(success) =>
+      case Success(_) =>
         Utils.activeRequests -= 1
         RetryCache.clearRetryRequestRefined(playerId, worldName, "data")
         Messager.messagePlayerSuccess(playerId, "Player Data Saved. You can quiet this message with /inv quiet")

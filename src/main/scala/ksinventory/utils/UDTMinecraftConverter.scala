@@ -2,7 +2,7 @@ package ksinventory.utils
 
 import java.util
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import ksinventory.models.ColorUDT
 import org.bukkit.{Color, DyeColor, FireworkEffect}
 import org.bukkit.block.banner.{Pattern, PatternType}
@@ -118,7 +118,7 @@ object UDTMinecraftConverter {
       case "WOLF" => EntityType.WOLF
       case "ZOMBIE" => EntityType.ZOMBIE
       case "ZOMBIE_HORSE" => EntityType.ZOMBIE_HORSE
-      case "ZOMBIE_VLLAGER" => EntityType.ZOMBIE_VILLAGER
+      case "ZOMBIE_VILLAGER" => EntityType.ZOMBIE_VILLAGER
       case _ => null
     }
   }

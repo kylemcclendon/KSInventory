@@ -51,7 +51,7 @@ class EndChestInventoryService(endChestInventoryDao: EndChestInventoryDao) {
     }
 
     f onComplete {
-      case Success(success) =>
+      case Success(_) =>
         Utils.activeRequests -= 1
         RetryCache.clearRetryRequestRefined(playerId, worldName, "end")
         Messager.messagePlayerSuccess(playerId, "Chest Inventory Saved. You can quiet this message with /inv quiet")

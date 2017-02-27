@@ -2,7 +2,7 @@ package ksinventory
 
 import java.io.File
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import ksinventory.cache.MessageSuppressionCache
 import ksinventory.commands.{InventoryCommands, RetryCommands}
 import ksinventory.database.CassandraDbConnector

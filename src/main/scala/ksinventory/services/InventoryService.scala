@@ -49,7 +49,7 @@ class InventoryService(inventoryDao: InventoryDao) {
     }
 
     f onComplete {
-      case Success(success) =>
+      case Success(_) =>
         Utils.activeRequests -= 1
         RetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
         Messager.messagePlayerSuccess(playerId, "Inventory Saved. You can quiet this message with /inv quiet")

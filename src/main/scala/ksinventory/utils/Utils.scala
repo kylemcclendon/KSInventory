@@ -1,10 +1,7 @@
 package ksinventory.utils
 
-import java.util
-
 import org.bukkit.Bukkit
-
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 object Utils {
   var activeRequests = 0

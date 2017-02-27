@@ -5,7 +5,7 @@ import java.util.UUID
 
 import ksinventory.utils.UDTMinecraftConverter.{getAsMinecraftPattern, getColor, getEntityType, getFireworkEffect, getPotionData}
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import ksinventory.models._
 import org.bukkit.Material
 import org.bukkit.block.ShulkerBox
