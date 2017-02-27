@@ -1,5 +1,6 @@
 package ksinventory.models
 
+import java.util
 import java.util.UUID
 
 import com.datastax.driver.mapping.annotations.{Frozen, Table}
@@ -14,8 +15,10 @@ class PlayerInventory(){
   var material: String = _
   @Frozen
   var metaUDT: MetaUDT = _
+  @Frozen
+  var internal_inventory: util.List[ItemUDT] = _
 
-  def this(pid: UUID, wid: String, pos: Int, amt: Int, dam:Int, mat:String, meta:MetaUDT){
+  def this(pid: UUID, wid: String, pos: Int, amt: Int, dam:Int, mat:String, meta:MetaUDT, inv: util.List[ItemUDT]){
     this()
     this.player_id = pid
     this.world_name = wid
@@ -24,5 +27,6 @@ class PlayerInventory(){
     this.damage = dam
     this.material = mat
     this.metaUDT = meta
+    this.internal_inventory = inv
   }
 }

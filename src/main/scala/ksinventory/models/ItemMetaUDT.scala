@@ -4,8 +4,8 @@ import java.util
 
 import com.datastax.driver.mapping.annotations.{Frozen, UDT}
 
-@UDT(keyspace="minecraft", name="metaudt")
-class MetaUDT(){
+@UDT(keyspace="minecraft", name="itemmetaudt")
+class ItemMetaUDT(){
   @Frozen
   var banner: util.List[PatternUDT] = _
   @Frozen

@@ -14,6 +14,7 @@ class playerJoinLeaveEvent extends Listener{
     if(MessageSuppressionCache.getPlayerSuppression(playerJoinEvent.getPlayer.getUniqueId.toString)){
       playerJoinEvent.getPlayer.sendMessage(ChatColor.GRAY + "Inventory messages are suppressed for you. Turn them on with /inv verbose if you want to start getting inventory messages...")
     }
+    playerJoinEvent.getPlayer.getInventory.clear()
     InventoryService.setPlayerWorldInventory(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
     EndChestInventoryService.setPlayerWorldEndInventory(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
     DataService.setPlayerWorldData(playerJoinEvent.getPlayer.getUniqueId, getShortenedWorldName(playerJoinEvent.getPlayer.getWorld.getName))
