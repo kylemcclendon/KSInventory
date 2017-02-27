@@ -10,8 +10,6 @@ import ksinventory.database.CassandraDbConnector
 import ksinventory.models.EndInventory
 
 class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
-  //Getter
-
   def getPlayerEndInventory(playerId: UUID, worldName: String): List[EndInventory] = {
     try{
       val mapper: Mapper[EndInventory] = cassandraDbConnector.getMapper.mapper(classOf[EndInventory])
@@ -28,8 +26,6 @@ class EndChestInventoryDao(cassandraDbConnector: CassandraDbConnector) {
         Nil
     }
   }
-
-  //Saver
 
   def savePlayerEndInventory(playerId: UUID, worldName: String, inventoryList: List[EndInventory]): Unit ={
     val batch = new BatchStatement()

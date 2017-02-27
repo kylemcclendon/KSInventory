@@ -10,8 +10,6 @@ import ksinventory.database.CassandraDbConnector
 import ksinventory.models.PlayerInventory
 
 class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
-  //Getter
-
   def getPlayerInventory(playerId: UUID, worldName: String): List[PlayerInventory] ={
     try {
       val mapper: Mapper[PlayerInventory] = cassandraDbConnector.getMapper.mapper(classOf[PlayerInventory])
@@ -29,8 +27,6 @@ class InventoryDao(cassandraDbConnector: CassandraDbConnector) {
         Nil
     }
   }
-
-  //Saver
 
   def savePlayerInventory(playerId: UUID, worldName: String, inventoryList: List[PlayerInventory]): Unit ={
     val batch = new BatchStatement()

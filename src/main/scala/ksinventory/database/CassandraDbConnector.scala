@@ -10,9 +10,9 @@ trait CassandraDbConnector {
   def createSession(address: String, port: Int): Session
   def getKeySpace: String = "minecraft"
   def getPort: Int = 9042
-  def getHost: String = "216.224.167.187"
-  def getUserName: String = "cassandra"
-  def getPassword: String = "cassandra"
+  def getHost: String = sys.env("MCCassandra_Host")
+  def getUserName: String =  sys.env("MCCassandra_User")
+  def getPassword: String =  sys.env("MCCassandra_Password")
   def getMapper: MappingManager
 }
 class CassandraDbConnectorImpl extends CassandraDbConnector {
@@ -42,7 +42,7 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
       if(address.contains(",")) hosts = address.split(",").map(_.trim)
 
 //      val cluster = Cluster.builder().addContactPoints(hosts:_*).withPort(port).withCredentials(userName, password).build()
-      val cluster = Cluster.builder().addContactPoint("216.224.167.187").withPort(9042).withCredentials("cassandra", "cassandra").build()
+      val cluster = Cluster.builder().addContactPoint(getHost).withPort(9042).withCredentials(getUserName, getPassword).build()
       session = cluster.connect("minecraft")
       mappingManager = new MappingManager(session);
     } catch {

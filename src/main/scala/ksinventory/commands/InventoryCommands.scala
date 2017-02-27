@@ -14,19 +14,26 @@ class InventoryCommands(plugin: KSInventory) extends CommandExecutor{
         if(command.getName.equals("inv")){
           if(args.length == 1){
             if(args(0).equals("quiet") || args(0).equals("q")){
-              plugin.getConfig.set(player.getUniqueId.toString, true)
-              MessageSuppressionCache.setSuppressedPlayer(player.getUniqueId.toString)
-              player.sendMessage(ChatColor.GRAY + "Inventory messages suppressed. To re-enable, use /inv verbose")
-              plugin.saveConfig()
+              if(MessageSuppressionCache.getPlayerSuppression(player.getUniqueId.toString)){
+                player.sendMessage(ChatColor.GRAY + "You already have messages suppressed")
+              }
+              else {
+                plugin.getConfig.set(player.getUniqueId.toString, true)
+                MessageSuppressionCache.setSuppressedPlayer(player.getUniqueId.toString)
+                player.sendMessage(ChatColor.GRAY + "Inventory messages suppressed. To re-enable, use /inv verbose")
+                plugin.saveConfig()
+              }
             }
             else if(args(0).equals("verbose") || args(0).equals("v")){
-              plugin.getConfig.set(player.getUniqueId.toString, null)
-              MessageSuppressionCache.removeSuppressedPlayer(player.getUniqueId.toString)
-              player.sendMessage(ChatColor.GRAY + "Inventory messages re-enabled. To suppress them, use /inv quiet")
-              plugin.saveConfig()
-            }
-            else if(args(0).equals("retry")){
-              player.sendMessage(ChatColor.RED + "You must provide the item you want to retry (inv, data, end).")
+              if(!MessageSuppressionCache.getPlayerSuppression(player.getUniqueId.toString)){
+                player.sendMessage(ChatColor.GRAY + "You are already recieving messages")
+              }
+              else {
+                plugin.getConfig.set(player.getUniqueId.toString, null)
+                MessageSuppressionCache.removeSuppressedPlayer(player.getUniqueId.toString)
+                player.sendMessage(ChatColor.GRAY + "Inventory messages re-enabled. To suppress them, use /inv quiet")
+                plugin.saveConfig()
+              }
             }
             else if(args(0).equals("help")){
               val worldNames = Utils.getAllWorldNames.mkString(",")
