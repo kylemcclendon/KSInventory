@@ -1,6 +1,6 @@
 package ksinventory.events
 
-import ksinventory.cache.{EndChestCache, RetryCache}
+import ksinventory.cache.{EndChestCache, SaveRetryCache}
 import ksinventory.services.EndChestInventoryService
 import ksinventory.utils.Utils.getShortenedWorldName
 import org.bukkit.{ChatColor, Material}
@@ -15,8 +15,8 @@ class endChestEvents extends Listener{
     if(inventoryOpenEvent.getInventory.getType.equals(InventoryType.ENDER_CHEST)){
       val inventory = EndChestInventoryService.getPlayerWorldEndInventory(inventoryOpenEvent.getPlayer.getUniqueId, getShortenedWorldName(inventoryOpenEvent.getPlayer.getWorld.getName))
 
-      RetryCache.clearRetryRefined(inventoryOpenEvent.getPlayer.getUniqueId, getShortenedWorldName(inventoryOpenEvent.getPlayer.getWorld.getName), "end")
-      RetryCache.clearRetryRequestRefined(inventoryOpenEvent.getPlayer.getUniqueId, getShortenedWorldName(inventoryOpenEvent.getPlayer.getWorld.getName), "end")
+      SaveRetryCache.clearRetryRefined(inventoryOpenEvent.getPlayer.getUniqueId, getShortenedWorldName(inventoryOpenEvent.getPlayer.getWorld.getName), "end")
+      SaveRetryCache.clearRetryRequestRefined(inventoryOpenEvent.getPlayer.getUniqueId, getShortenedWorldName(inventoryOpenEvent.getPlayer.getWorld.getName), "end")
 
       inventoryOpenEvent.getInventory.setContents(inventory.toArray)
     }

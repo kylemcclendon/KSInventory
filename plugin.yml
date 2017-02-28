@@ -6,6 +6,9 @@ commands:
    inv:
       description: Used to suppress messages
       usage: /inv [help|quiet|q|verbose|v]
-   retry:
+   retrySave:
       description: Used to retry a failed save
-      usage: /retry [saveType] [worldName]
+      usage: /retrySave [type] [worldName]
+   retryGet:
+      description: Used to retry a failed retrieve
+      usage: /retryGet [type] [worldName]

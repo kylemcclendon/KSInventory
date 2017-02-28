@@ -4,7 +4,7 @@ import java.io.File
 
 import scala.collection.JavaConverters._
 import ksinventory.cache.MessageSuppressionCache
-import ksinventory.commands.{InventoryCommands, RetryCommands}
+import ksinventory.commands.{InventoryCommands, RetrieveRetryCommands, SaveRetryCommands}
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
 import ksinventory.services.EndChestInventoryService
@@ -16,13 +16,15 @@ class KSInventory extends JavaPlugin{
   override def onEnable(): Unit = {
     val pm = getServer.getPluginManager
     val inventoryCommands = new InventoryCommands(this)
-    val retryCommands = new RetryCommands(this)
+    val saveRetryCommands = new SaveRetryCommands()
+    val retrieveRetryCommands = new RetrieveRetryCommands()
     pm.registerEvents(new worldChangeEvent(), this)
     pm.registerEvents(new playerJoinLeaveEvent(), this)
     pm.registerEvents(new endChestEvents(),this)
 
     getCommand("inv").setExecutor(inventoryCommands)
-    getCommand("retry").setExecutor(retryCommands)
+    getCommand("retrySave").setExecutor(saveRetryCommands)
+    getCommand("retryGet").setExecutor(retrieveRetryCommands)
     createConfig()
     MessageSuppressionCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
     handleReload()

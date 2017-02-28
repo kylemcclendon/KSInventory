@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.{PlayerWorldInventoryCache, RetryCache}
+import ksinventory.cache.{PlayerWorldInventoryCache, RetrieveRetryCache, SaveRetryCache}
 import ksinventory.dao.InventoryDao
 import ksinventory.messager.Messager
 import ksinventory.models.PlayerInventory
@@ -21,6 +21,7 @@ class InventoryService(inventoryDao: InventoryDao) {
     else{
       //Get From DB
       Utils.activeRequests += 1
+      RetrieveRetryCache.clearRetryRefined(playerId, worldName, "inv")
       val f: Future[List[PlayerInventory]] = Future {
         inventoryDao.getPlayerInventory(playerId, worldName)
       }
@@ -28,11 +29,15 @@ class InventoryService(inventoryDao: InventoryDao) {
       f onComplete {
         case Success(playerInventories) =>
           Utils.activeRequests -= 1
+          RetrieveRetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
           val playerInventory = new ItemStackConverter().convertInventoryToItemStacks(playerInventories)
           getServer.getPlayer(playerId).getInventory.setContents(playerInventory.toArray)
           setPlayerInventoryCache(playerId, worldName, playerInventory)
         case Failure(message) =>
           Utils.activeRequests -= 1
+          RetrieveRetryCache.setRetryRefined(playerId,worldName, "inv")
+          RetrieveRetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
+          Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the retrieve with /retryGet " + worldName + " inv")
           println(message)
       }
     }
@@ -40,7 +45,7 @@ class InventoryService(inventoryDao: InventoryDao) {
 
   def persistPlayerInventory(playerId: UUID, worldName: String): Unit ={
     val inventory = PlayerWorldInventoryCache.getPlayerInventory(playerId, worldName)
-    RetryCache.clearRetryRefined(playerId, worldName, "inv")
+    SaveRetryCache.clearRetryRefined(playerId, worldName, "inv")
 
     Utils.activeRequests += 1
     val f: Future[Unit] = Future {
@@ -51,13 +56,13 @@ class InventoryService(inventoryDao: InventoryDao) {
     f onComplete {
       case Success(_) =>
         Utils.activeRequests -= 1
-        RetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
+        SaveRetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
         Messager.messagePlayerSuccess(playerId, "Inventory Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        RetryCache.setRetryRefined(playerId,worldName, "inv")
-        RetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
-        Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the save with /inv retry")
+        SaveRetryCache.setRetryRefined(playerId,worldName, "inv")
+        SaveRetryCache.clearRetryRequestRefined(playerId, worldName, "inv")
+        Messager.messagePlayerFailure(playerId, "Player Inventory Save Failed! You can retry the save with /retrySave " + worldName + " inv")
         println(error)
     }
   }

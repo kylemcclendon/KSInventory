@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
-import ksinventory.cache.{PlayerWorldDataCache, RetryCache}
+import ksinventory.cache.{PlayerWorldDataCache, RetrieveRetryCache, SaveRetryCache}
 import ksinventory.dao.PlayerDataDao
 import ksinventory.messager.Messager
 import ksinventory.utils.Utils
@@ -26,6 +26,7 @@ class DataService(playerDataDao: PlayerDataDao) {
     else{
       //Get From DB
       val player = getServer.getPlayer(playerId)
+      RetrieveRetryCache.clearRetryRefined(playerId, worldName, "data")
 
       Utils.activeRequests += 1
       val f : Future[(Float, Float, Float, Float, Float)] = Future {
@@ -35,6 +36,7 @@ class DataService(playerDataDao: PlayerDataDao) {
       f onComplete {
         case Success(playerData) =>
           Utils.activeRequests -= 1
+          RetrieveRetryCache.clearRetryRequestRefined(playerId, worldName, "data")
           player.setHealth(playerData._1)
           player.setExp(playerData._2)
           player.setLevel(playerData._3.toInt)
@@ -43,6 +45,9 @@ class DataService(playerDataDao: PlayerDataDao) {
           setPlayerDataCache(playerId, worldName, playerData._1, playerData._2, playerData._3, playerData._4, playerData._5)
         case Failure(error) =>
           Utils.activeRequests -=1
+          RetrieveRetryCache.setRetryRefined(playerId, worldName, "data")
+          RetrieveRetryCache.clearRetryRequestRefined(playerId, worldName, "data")
+          Messager.messagePlayerFailure(playerId, "Player Data Retrieve Failed! You can retry the retrieve with /retryGet " + worldName + " data")
           println(error)
       }
     }
@@ -50,8 +55,7 @@ class DataService(playerDataDao: PlayerDataDao) {
 
   def persistPlayerData(playerId: UUID, worldName: String): Unit ={
     val playerData = PlayerWorldDataCache.getPlayerData(playerId, worldName)
-//    setPlayerDataCache(playerId,worldName,health,experience,level,food,saturation)
-    RetryCache.clearRetryRefined(playerId, worldName, "data")
+    SaveRetryCache.clearRetryRefined(playerId, worldName, "data")
 
     //Attempt Save To DB
     Utils.activeRequests += 1
@@ -62,13 +66,13 @@ class DataService(playerDataDao: PlayerDataDao) {
     f onComplete {
       case Success(_) =>
         Utils.activeRequests -= 1
-        RetryCache.clearRetryRequestRefined(playerId, worldName, "data")
+        SaveRetryCache.clearRetryRequestRefined(playerId, worldName, "data")
         Messager.messagePlayerSuccess(playerId, "Player Data Saved. You can quiet this message with /inv quiet")
       case Failure(error) =>
         Utils.activeRequests -= 1
-        RetryCache.setRetryRefined(playerId, worldName, "data")
-        RetryCache.clearRetryRequestRefined(playerId, worldName, "data")
-        Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /inv retry")
+        SaveRetryCache.setRetryRefined(playerId, worldName, "data")
+        SaveRetryCache.clearRetryRequestRefined(playerId, worldName, "data")
+        Messager.messagePlayerFailure(playerId, "Player Data Save Failed! You can retry the save with /retrySave " + worldName + " data")
         println(error)
     }
   }

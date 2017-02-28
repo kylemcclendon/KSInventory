@@ -37,8 +37,8 @@ class InventoryCommands(plugin: KSInventory) extends CommandExecutor{
             }
             else if(args(0).equals("help")){
               val worldNames = Utils.getAllWorldNames.mkString(",")
-              player.sendMessage(ChatColor.GRAY + "Available commands: /inv, /retry")
-              player.sendMessage(ChatColor.GRAY + "saveTypes: inv, data, end")
+              player.sendMessage(ChatColor.GRAY + "Available commands: /inv, /retrySave, /retryGet")
+              player.sendMessage(ChatColor.GRAY + "types: inv, data, end")
               player.sendMessage(ChatColor.GRAY + "worldNames: " + worldNames)
             }
             else{
