@@ -7,7 +7,9 @@ import ksinventory.cache.MessageSuppressionCache
 import ksinventory.commands.{InventoryCommands, RetryCommands}
 import ksinventory.database.CassandraDbConnector
 import ksinventory.events.{endChestEvents, playerJoinLeaveEvent, worldChangeEvent}
+import ksinventory.services.EndChestInventoryService
 import ksinventory.utils.Utils
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 class KSInventory extends JavaPlugin{
@@ -23,6 +25,7 @@ class KSInventory extends JavaPlugin{
     getCommand("retry").setExecutor(retryCommands)
     createConfig()
     MessageSuppressionCache.setSuppressedPlayers(getConfig.getKeys(false).asScala.toSet)
+    handleReload()
     getLogger.info("Enabling KSInventory")
     getLogger.info("KSInventory Enabled")
   }
@@ -54,6 +57,11 @@ class KSInventory extends JavaPlugin{
       case e: Exception => e.printStackTrace()
 
     }
+  }
 
+  private def handleReload(): Unit ={
+    Bukkit.getServer.getOnlinePlayers.asScala.foreach((player)=>{
+      EndChestInventoryService.setPlayerWorldEndInventory(player.getUniqueId, Utils.getShortenedWorldName(player.getWorld.getName))
+    })
   }
 }

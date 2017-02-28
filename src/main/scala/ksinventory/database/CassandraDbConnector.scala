@@ -41,7 +41,6 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
       var hosts : Array[String] = Array(address)
       if(address.contains(",")) hosts = address.split(",").map(_.trim)
 
-//      val cluster = Cluster.builder().addContactPoints(hosts:_*).withPort(port).withCredentials(userName, password).build()
       val cluster = Cluster.builder().addContactPoint(getHost).withPort(9042).withCredentials(getUserName, getPassword).build()
       session = cluster.connect("minecraft")
       mappingManager = new MappingManager(session);
