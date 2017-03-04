@@ -33,7 +33,6 @@ class KSInventory extends JavaPlugin{
   }
 
   override def onDisable(): Unit = {
-    getLogger.info("Disabling KSInventory")
     while(Utils.activeRequests > 0) {
       getLogger.info(Utils.activeRequests + " active database requests still open, waiting 5 seconds for them to resolve...")
       Thread.sleep(5000)
