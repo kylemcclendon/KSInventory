@@ -18,6 +18,7 @@ trait CassandraDbConnector {
 class CassandraDbConnectorImpl extends CassandraDbConnector {
 //  private val logger = Logger(this.getClass)
   private[this] val lock = new Object()
+  private var cluster: Cluster = _
   private var session: Session =_
   private var mappingManager: MappingManager = _
 
@@ -34,6 +35,10 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
       mappingManager = null
       session = null
     }
+    if(cluster != null){
+      cluster.close()
+      cluster = null
+    }
   }
 
   def createSessionAndInitKeySpace(address: String, port: Int, keySpace: String, userName: String, password: String): Session = lock.synchronized {
@@ -41,7 +46,10 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
       var hosts : Array[String] = Array(address)
       if(address.contains(",")) hosts = address.split(",").map(_.trim)
 
-      val cluster = Cluster.builder().addContactPoint(getHost).withPort(9042).withCredentials(getUserName, getPassword).build()
+      if(cluster == null || cluster.isClosed) {
+        val locCluster = Cluster.builder().addContactPoint(getHost).withPort(9042).withCredentials(getUserName, getPassword).build()
+        cluster = locCluster
+      }
       session = cluster.connect("minecraft")
       mappingManager = new MappingManager(session);
     } catch {
@@ -51,7 +59,10 @@ class CassandraDbConnectorImpl extends CassandraDbConnector {
   }
 
   def createSession(address: String, port: Int): Session = {
-    val cluster = Cluster.builder().addContactPoint(address).withPort(port).build()
+    if(cluster == null || cluster.isClosed) {
+      val locCluster = Cluster.builder().addContactPoint(address).withPort(port).build()
+      cluster = locCluster
+    }
     val session = cluster.connect()
     session
   }
