@@ -85,6 +85,12 @@ class ItemStackConverter {
           val book = item.getItemMeta.asInstanceOf[BookMeta]
 
           bookMeta = new BookMetaUDT(book.getAuthor, book.getTitle, book.getPages)
+        case Material.ENCHANTED_BOOK =>
+          val enchants = item.getItemMeta.asInstanceOf[EnchantmentStorageMeta].getStoredEnchants
+          enchantments = scala.collection.mutable.Map()
+          enchants.forEach((enchantment, power)=>{
+            enchantments += (enchantment.getName -> power)
+          })
         case Material.MONSTER_EGG =>
           eggMeta = item.getItemMeta.asInstanceOf[SpawnEggMeta].getSpawnedType.toString
         case Material.SKULL_ITEM =>
@@ -139,7 +145,7 @@ class ItemStackConverter {
         case _ => //Do nothing
       }
 
-      if(item.getEnchantments.size > 0){
+      if(item.getEnchantments.size > 0 && enchantments == null){
         enchantments = scala.collection.mutable.Map()
         item.getEnchantments.forEach((enchantment, power)=>{
           enchantments += (enchantment.getName -> power)
@@ -222,6 +228,12 @@ class ItemStackConverter {
           bookMeta.setAuthor(metaudt.book.author)
           bookMeta.setTitle(metaudt.book.title)
           setGeneralMeta(bookMeta, metaudt)
+        case "ENCHANTED_BOOK" =>
+          val enchantedBook = meta.asInstanceOf[EnchantmentStorageMeta]
+          metaudt.enchantments.asScala.foreach((enchant) => {
+            enchantedBook.addStoredEnchant(Enchantment.getByName(enchant._1), enchant._2, true)
+          })
+          setGeneralMeta(enchantedBook, metaudt, isEnchantedBook = true)
         case "MONSTER_EGG" =>
           val eggMeta = meta.asInstanceOf[SpawnEggMeta]
           eggMeta.setSpawnedType(getEntityType(metaudt.egg))
@@ -269,9 +281,9 @@ class ItemStackConverter {
     }
   }
 
-  def setGeneralMeta(meta: ItemMeta, metaUDT: MetaUDT): ItemMeta = {
+  def setGeneralMeta(meta: ItemMeta, metaUDT: MetaUDT, isEnchantedBook: Boolean = false): ItemMeta = {
     val newMeta = meta
-    if(metaUDT.enchantments.size() > 0){
+    if(metaUDT.enchantments.size() > 0 && !isEnchantedBook){
       metaUDT.enchantments.asScala.map((enchant) => {
         newMeta.addEnchant(Enchantment.getByName(enchant._1),enchant._2, false)
       })
