@@ -33,11 +33,16 @@ class KSInventory extends JavaPlugin{
   }
 
   override def onDisable(): Unit = {
-    while(Utils.activeRequests > 0) {
+    var retries = 10
+    while(Utils.activeRequests > 0 && retries > 0) {
       getLogger.info(Utils.activeRequests + " active database requests still open, waiting 5 seconds for them to resolve...")
+      retries -= 1
       Thread.sleep(5000)
     }
 
+    if(Utils.activeRequests > 0){
+      getLogger.warning("Not all databases requests resolved (?). Some data may be lost...")
+    }
     getLogger.info("All database requests resolved. Shutting down database connection...")
     CassandraDbConnector.closeSession()
     getLogger.info("Database connection shut down. KSInventory Disabled")
